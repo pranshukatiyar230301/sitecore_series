@@ -16,7 +16,6 @@ export async function sendContactEmail(payload: { name: string; email: string; m
   }
 
   sgMail.setApiKey(apiKey);
-
   const subject = `New SitecoreSeries contact: ${payload.name}`;
   const text = `Name: ${payload.name}\nEmail: ${payload.email}\n\nMessage:\n${payload.message}`;
   
