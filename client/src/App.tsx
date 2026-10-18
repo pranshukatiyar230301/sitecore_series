@@ -68,6 +68,7 @@ function Router() {
       <main className="flex-grow">
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/blogs" component={Home} /> {/* ✅ Fixed 404 for /blogs */}
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/blogs/:category" component={BlogCategory} />
