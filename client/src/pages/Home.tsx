@@ -103,7 +103,7 @@ export default function Home() {
   const whyCards = home.whyCards || [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-primary/25 selection:text-primary overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500 selection:text-white overflow-x-hidden font-sans">
       {/* Hero Section */}
       <section className="relative min-h-[70vh] flex items-center bg-secondary py-16 lg:py-20 overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-transparent to-transparent pointer-events-none" />
