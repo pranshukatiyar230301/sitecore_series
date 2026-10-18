@@ -1,0 +1,80 @@
+What is Rendering Variant & Scriban template in Sitecore SXA?
+By Er. Pranshu Katiyar (Software Engineer) Er. Pranshu Katiyar - Thursday, January 08, 2026
+
+Sitecore SXA developers would use rendering variants when needed. For those unfamiliar with SXA, the rendering variant feature allows you to present different appearances of the same rendering with minimal effort.
+
+Creating and using a rendering variant is straightforward. On my page, for example, there are three fields:
+
+Title
+Content
+Image
+
+Navigate to `/*/YourSite/Presentation/Rendering Variants/Page Content`, right-click, and select "Insert" to add a new Variant Definition. I named this variant “Title Content and Image.”
+
+
+Once the new rendering variant is created, right-click on it to view all the available options that you can added.
+
+
+For my page, I need the HTML structure to be as follows:
+
+<div class="page-block-section">
+  <div class="title-section">
+    <h1 class="page-title">
+      <!-- Title Field value will be rendered here -->
+    </h1>
+  </div>
+  <div class="content-section">
+    <!-- Content Field Rich Text value will be rendered here -->
+  </div>
+  <div class="image-section">
+    <img src="<image url>" alt="" width="" height="">
+  </div> </div>
+I have added the following sections and assigned appropriate class names to each section and field:
+
+
+
+
+In Experience Editor mode, I added the page content rendering and selected the newly created variant.
+
+
+Now we will view the output on the page. As you can see, the HTML structure is displayed as expected.
+
+
+BUT WAIT!!! The image is not rendered properly! WHY?
+
+The reason is simple: The Default Theme is not selected correctly in the Page Design folder. See below:
+
+
+Just select the correct site theme, and voila! The image should render properly.
+
+
+What is a Scriban Template?
+
+Scriban templates are stored in your SXA rendering variants and serve as additional renderers, such as field renderers, sections, or tags. They can coexist with other renderers or replace existing ones. For more information, visit Scriban Templates Documentation.
+
+In short, while creating a rendering variant the way I just showed you may seem straightforward, using a Scriban template can make the process even easier and quicker.
+
+I have added a new rendering variant, inserted a Scriban template into it, and included the following code:
+
+<div class="page-block-section">
+  <div class="title-section">
+    <h1 class="page-title">
+      {{ i_item.Title }}
+    </h1>
+  </div>
+  <div class="content-section">
+    {{ i_item.Content }}
+  </div>
+  <div class="image-section">
+    {{ i_item.PromoImage }}
+  </div>
+</div>
+
+After adding this new variant via Experience Editor, here's the result:
+
+
+
+We can extend Scriban to read item field values, loop through item children, and more.
+
+======================================================================
+Thanks For Reading My Blogs

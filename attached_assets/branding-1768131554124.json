@@ -1,0 +1,128 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Times New Roman",
+      "count": 120
+    },
+    {
+      "family": "Times",
+      "count": 120
+    },
+    {
+      "family": "FreeSerif",
+      "count": 120
+    },
+    {
+      "family": "serif",
+      "count": 120
+    },
+    {
+      "family": "sans-serif",
+      "count": 21
+    },
+    {
+      "family": "Roboto",
+      "count": 13
+    },
+    {
+      "family": "Google Sans",
+      "count": 8
+    },
+    {
+      "family": "Arial",
+      "count": 8
+    },
+    {
+      "family": "arial",
+      "count": 2
+    }
+  ],
+  "colors": {
+    "primary": "#F31C1C",
+    "accent": "#FFFF00",
+    "background": "#EDEDED",
+    "textPrimary": "#000000",
+    "link": "#FFFF00"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Times New Roman",
+      "heading": "Roboto"
+    },
+    "fontStacks": {
+      "body": [
+        "Times New Roman",
+        "Times",
+        "FreeSerif",
+        "serif"
+      ],
+      "heading": [
+        "Roboto",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Times New Roman",
+        "Times",
+        "FreeSerif",
+        "serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "45px",
+      "h2": "22.5px",
+      "body": "15px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "0px"
+  },
+  "components": {
+    "input": {
+      "background": "#FFFFFF",
+      "textColor": "#000000",
+      "borderColor": "#767676",
+      "borderRadius": "0px",
+      "borderRadiusCorners": {
+        "topLeft": "0px",
+        "topRight": "0px",
+        "bottomRight": "0px",
+        "bottomLeft": "0px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "File saved at: attached_assets/logo.svg",
+    "favicon": "https://pranshukatiyarpk.blogspot.com/favicon.ico",
+    "ogImage": "File saved at: attached_assets/ogImage.png"
+  },
+  "__framework_hints": [
+    "blogger"
+  ],
+  "__llm_logo_reasoning": {
+    "selectedIndex": 0,
+    "reasoning": "Logo rejected: Low confidence. Heuristic fallback: Weak indicators: no link (brand logos usually link to homepage, penalty), top-left position, highest logo on page, src contains logo, too small (likely icon, penalty), small square icon (likely UI icon, heavy penalty), body location without header (penalty), not visible (penalty). Score: -28. LLM validation recommended (close scores: top=-28, second=0)",
+    "confidence": 0.30000000000000004,
+    "rejected": true
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "LLM failed"
+    },
+    "confidence": 0
+  },
+  "confidence": {
+    "buttons": 0,
+    "colors": 0,
+    "overall": 0
+  }
+}
