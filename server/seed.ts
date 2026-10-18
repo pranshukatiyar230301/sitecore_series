@@ -38,9 +38,9 @@ const DEFAULT_HOME = {
     titleHighlight: "Sitecore",
     subtitle: "Master XM Cloud, Content Hub, and modern architecture patterns. Technical excellence for the composable DXP era.",
     primaryCtaLabel: "Explore Content",
-    primaryCtaHref: "/blogs",
+    primaryCtaHref: "/",           // ✅ Updated from "/blogs" to "/"
     secondaryCtaLabel: "View Tutorials",
-    secondaryCtaHref: "/blogs",
+    secondaryCtaHref: "#whats-hot", // ✅ Updated from "/blogs" to smooth scroll target
   },
   stats: [
     { value: "27+", label: "Sitecore Categories" },
@@ -51,9 +51,9 @@ const DEFAULT_HOME = {
   highlightSectionTitle: "What's hot right now",
   highlightSectionSubtitle: "Curated Sitecore content series our community is reading this week.",
   highlights: [
-    { eyebrow: "New Series", title: "XM Cloud Migrations", desc: "Step-by-step guide for moving from XM 10.x to XM Cloud without losing your sanity.", href: "/blogs/sitecore-xm-cloud" },
-    { eyebrow: "Hot Topic", title: "Composable DXP Patterns", desc: "Architectures, anti-patterns, and the integrations that make composable actually work.", href: "/blogs/sitecore-cdp" },
-    { eyebrow: "Community Favorite", title: "JSS + Next.js Deep Dives", desc: "Personalization, layout service mastery, and production-ready frontends with JSS.", href: "/blogs/sitecore-jss" },
+    { eyebrow: "New Series", title: "XM Cloud Migrations", desc: "Step-by-step guide for moving from XM 10.x to XM Cloud without losing your sanity.", href: "/" },
+    { eyebrow: "Hot Topic", title: "Composable DXP Patterns", desc: "Architectures, anti-patterns, and the integrations that make composable actually work.", href: "/" },
+    { eyebrow: "Community Favorite", title: "JSS + Next.js Deep Dives", desc: "Personalization, layout service mastery, and production-ready frontends with JSS.", href: "/" },
   ],
   testimonialsTitle: "What developers say",
   testimonials: [
@@ -134,7 +134,9 @@ export async function runSeed() {
       await storage.createCategory({ ...c, sortOrder: i++ });
     }
   }
-  if (await storage.getSiteContent("home") === undefined) await storage.setSiteContent("home", DEFAULT_HOME);
+  
+  // Force update or seed site content
+  await storage.setSiteContent("home", DEFAULT_HOME);
   if (await storage.getSiteContent("about") === undefined) await storage.setSiteContent("about", DEFAULT_ABOUT);
   if (await storage.getSiteContent("contact") === undefined) await storage.setSiteContent("contact", DEFAULT_CONTACT);
 
