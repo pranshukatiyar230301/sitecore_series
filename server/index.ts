@@ -92,8 +92,6 @@ app.use((req, res, next) => {
       port,
       host,
     },
-    () => {
-      log(`serving on port ${port}`);
-    },
+    () => {log(`serving on port ${port}`);},
   );
 })();
