@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Twitter, Linkedin, Github, Mail, Copy, Check, ArrowUpRight, Flame } from "lucide-react";
+import { Twitter, Linkedin, Mail, Copy, Check, ArrowUpRight, Flame, Facebook, Instagram, Youtube ,} from "lucide-react";
 
 export function Footer() {
   const [copied, setCopied] = useState(false);
@@ -102,7 +102,10 @@ export function Footer() {
               {[
                 { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
                 { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-                { icon: Github, href: "https://github.com", label: "GitHub" },
+                { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
+                { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
+                { icon: Mail, href: `mailto:${email}`, label: "Email" },
+                { icon: Youtube, href: "https://youtube.com", label: "YouTube" },
               ].map((social, i) => {
                 const Icon = social.icon;
                 return (
