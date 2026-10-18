@@ -100,7 +100,7 @@ export function Footer() {
             {/* Social Links */}
             <div className="flex items-center gap-2.5">
               {[
-                { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
+                { icon: Twitter, href: "https://twitter.com/sitecoreseries", label: "Twitter" },
                 { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
                 { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
                 { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
