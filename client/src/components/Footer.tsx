@@ -102,7 +102,6 @@ export function Footer() {
               {[
                 { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
                 { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-                { icon: Github, href: "https://github.com", label: "GitHub" },
               ].map((social, i) => {
                 const Icon = social.icon;
                 return (
