@@ -268,14 +268,14 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
   }, [cats]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4 overflow-y-auto">
-      <div className="bg-card rounded-2xl sm:rounded-3xl w-full max-w-3xl shadow-2xl border border-border flex flex-col max-h-[92vh] my-auto">
-        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border shrink-0">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
+      <div className="bg-card rounded-none sm:rounded-2xl w-full h-full sm:w-[98vw] sm:h-[96vh] shadow-2xl border border-border flex flex-col overflow-hidden my-auto">
+        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border shrink-0 bg-card">
           <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">{isEdit ? "Edit Post" : "Create New Post"}</h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"><X className="h-5 w-5" /></button>
+          <button onClick={onClose} className="rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"><X className="h-5 w-5" /></button>
         </div>
 
-        <form onSubmit={(e) => e.preventDefault()} className="p-5 sm:p-6 space-y-5 overflow-y-auto flex-1">
+        <form onSubmit={(e) => e.preventDefault()} className="p-5 sm:p-8 space-y-6 overflow-y-auto flex-1">
           <Field label="Title" required>
             <input value={form.title} onChange={(e) => update("title", e.target.value)} required placeholder="My amazing Sitecore article" className="input-base" data-testid="input-post-title" />
             {!isEdit && form.title && (
@@ -284,7 +284,7 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
           </Field>
 
           <Field label="Category" required>
-            <select value={form.category} onChange={(e) => update("category", e.target.value)} required className="input-base" data-testid="select-post-category">
+            <select value={form.category} onChange={(e) => update("category", e.target.value)} required className="input-base cursor-pointer" data-testid="select-post-category">
               <option value="">— Select a category —</option>
               {Object.entries(groups).map(([group, items]) => (
                 <optgroup key={group} label={group}>
@@ -303,24 +303,24 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
           </Field>
 
           <Field label="Summary" required>
-            <RichTextEditor value={form.summary} onChange={(html) => update("summary", html)} placeholder="Short summary that appears in post cards..." minHeight={120} testId="rich-post-summary" />
+            <RichTextEditor value={form.summary} onChange={(html) => update("summary", html)} placeholder="Short summary that appears in post cards..." minHeight={140} testId="rich-post-summary" />
           </Field>
 
           <Field label="Content" required>
-            <RichTextEditor value={form.content} onChange={(html) => update("content", html)} placeholder="Write your full article here..." minHeight={320} testId="rich-post-content" />
+            <RichTextEditor value={form.content} onChange={(html) => update("content", html)} placeholder="Write your full article here..." minHeight={360} testId="rich-post-content" />
           </Field>
         </form>
 
-        <div className="flex flex-wrap gap-3 justify-end p-4 sm:p-5 border-t border-border bg-muted/20 rounded-b-2xl sm:rounded-b-3xl shrink-0">
-          <Button type="button" variant="outline" onClick={onClose} className="rounded-full text-xs sm:text-sm">Cancel</Button>
+        <div className="flex flex-wrap gap-3 justify-end p-4 sm:p-5 border-t border-border bg-muted/20 rounded-none sm:rounded-b-2xl shrink-0">
+          <Button type="button" variant="outline" onClick={onClose} className="rounded-full text-xs sm:text-sm cursor-pointer">Cancel</Button>
           <Button type="button" variant="outline" disabled={mutation.isPending}
             onClick={() => { if (!validate(form, toast)) return; mutation.mutate(false); }}
-            className="rounded-full font-bold px-5 text-xs sm:text-sm" data-testid="button-save-draft">
+            className="rounded-full font-bold px-5 text-xs sm:text-sm cursor-pointer" data-testid="button-save-draft">
             <FileEdit className="h-4 w-4 mr-1.5" /> Save as Draft
           </Button>
           <Button type="button" disabled={mutation.isPending}
             onClick={() => { if (!validate(form, toast)) return; mutation.mutate(true); }}
-            className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 text-xs sm:text-sm shadow-md shadow-emerald-600/20"
+            className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 text-xs sm:text-sm shadow-md shadow-emerald-600/20 cursor-pointer"
             data-testid="button-publish-post">
             {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4 mr-1.5" /> {isEdit && (initial as any).published ? "Save & Keep Published" : "Publish Now"}</>}
           </Button>
