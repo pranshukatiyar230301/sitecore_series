@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, memo } from "react";
 import { useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -226,6 +226,11 @@ function PostsManager() {
   );
 }
 
+// Memoized Content Editor
+const MemoizedContentEditor = memo(({ value, onChange }: { value: string; onChange: (html: string) => void }) => (
+  <RichTextEditor value={value} onChange={onChange} placeholder="Write your full article here..." minHeight={360} testId="rich-post-content" />
+));
+
 function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPost; isEdit: boolean; onClose: () => void }) {
   const { toast } = useToast();
   const { data: cats } = useCategories();
@@ -268,13 +273,16 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
   }, [cats]);
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="bg-card rounded-none sm:rounded-2xl w-full h-full sm:w-[98vw] sm:h-[96vh] shadow-2xl border border-border flex flex-col overflow-hidden my-auto">
-        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-border shrink-0 bg-card">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-0 sm:p-6 overflow-hidden">
+      <div className="bg-card rounded-none sm:rounded-2xl w-full max-w-4xl h-full sm:h-[90vh] shadow-2xl border border-border flex flex-col overflow-hidden">
+        
+        {/* Header - Fixed */}
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-border shrink-0 bg-card">
           <h2 className="text-lg sm:text-xl font-display font-bold text-foreground">{isEdit ? "Edit Post" : "Create New Post"}</h2>
           <button onClick={onClose} className="rounded-full p-2 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors cursor-pointer"><X className="h-5 w-5" /></button>
         </div>
 
+        {/* Scrollable Form Body */}
         <form onSubmit={(e) => e.preventDefault()} className="p-5 sm:p-8 space-y-6 overflow-y-auto flex-1">
           <Field label="Title" required>
             <input value={form.title} onChange={(e) => update("title", e.target.value)} required placeholder="My amazing Sitecore article" className="input-base" data-testid="input-post-title" />
@@ -302,16 +310,27 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
             <ImageField value={form.coverImage} onChange={(v) => update("coverImage", v)} />
           </Field>
 
-          <Field label="Summary" required>
-            <RichTextEditor value={form.summary} onChange={(html) => update("summary", html)} placeholder="Short summary that appears in post cards..." minHeight={140} testId="rich-post-summary" />
-          </Field>
+          {/* Multiline Textarea for Summary (Big, Bold, Red Underline) */}
+          <div className="space-y-2">
+            <h3 className="text-xs sm:text-sm font-semibold text-foreground">Summary <span className="text-destructive">*</span></h3>
+            <textarea
+              value={form.summary}
+              onChange={(e) => update("summary", e.target.value)}
+              placeholder="Short summary that appears in post cards..."
+              rows={3}
+              required
+              className="input-base summary-highlight resize-y"
+              data-testid="input-post-summary"
+            />
+          </div>
 
           <Field label="Content" required>
-            <RichTextEditor value={form.content} onChange={(html) => update("content", html)} placeholder="Write your full article here..." minHeight={360} testId="rich-post-content" />
+            <MemoizedContentEditor value={form.content} onChange={(html) => update("content", html)} />
           </Field>
         </form>
 
-        <div className="flex flex-wrap gap-3 justify-end p-4 sm:p-5 border-t border-border bg-muted/20 rounded-none sm:rounded-b-2xl shrink-0">
+        {/* Footer - Fixed at bottom so buttons are always visible */}
+        <div className="flex flex-wrap gap-3 justify-end p-4 sm:p-5 border-t border-border bg-card shadow-lg shrink-0">
           <Button type="button" variant="outline" onClick={onClose} className="rounded-full text-xs sm:text-sm cursor-pointer">Cancel</Button>
           <Button type="button" variant="outline" disabled={mutation.isPending}
             onClick={() => { if (!validate(form, toast)) return; mutation.mutate(false); }}
@@ -326,7 +345,19 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
           </Button>
         </div>
       </div>
-      <style>{`.input-base { width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); outline: none; transition: all 0.15s; font-size: 0.875rem; color: hsl(var(--foreground)); } .input-base:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15); }`}</style>
+      <style>{`
+        .input-base { width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); outline: none; transition: all 0.15s; font-size: 0.875rem; color: hsl(var(--foreground)); } 
+        .input-base:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15); }
+        
+        /* Big, bold summary text with primary red underline */
+        .summary-highlight {
+          font-size: 1.15rem !important;
+          font-weight: 700 !important;
+          text-decoration: underline !important;
+          text-decoration-color: hsl(var(--primary)) !important;
+          text-underline-offset: 4px !important;
+        }
+      `}</style>
     </div>
   );
 }
@@ -334,7 +365,7 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
 function validate(form: InsertPost, toast: (opts: any) => void): boolean {
   if (!form.title.trim()) { toast({ title: "Title is required", variant: "destructive" }); return false; }
   if (!form.category.trim()) { toast({ title: "Category is required", variant: "destructive" }); return false; }
-  if (!form.summary || !form.summary.replace(/<[^>]*>/g, "").trim()) { toast({ title: "Summary is required", variant: "destructive" }); return false; }
+  if (!form.summary.trim()) { toast({ title: "Summary is required", variant: "destructive" }); return false; }
   if (!form.content || !form.content.replace(/<[^>]*>/g, "").trim()) { toast({ title: "Content is required", variant: "destructive" }); return false; }
   return true;
 }
