@@ -177,7 +177,7 @@ export default function PostDetail() {
                     type="button" 
                     title="Share on WhatsApp" 
                     aria-label="Share on WhatsApp" 
-                    onClick={() => openShareWindow(`https://wa.me/?text=${encodeURIComponent(`${post.title}${shareUrl}`)}`)} 
+                    onClick={() => openShareWindow(`https://wa.me/?text=${encodeURIComponent(`${post.title} - ${shareUrl}`)}`)} 
                     className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all duration-200 hover:scale-105"
                   >
                     <FaWhatsapp className="h-4 w-4" />
@@ -207,13 +207,17 @@ export default function PostDetail() {
             {/* Article Body */}
             <div className="flex-1 min-w-0">
               <div className="rounded-2xl sm:rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-12 shadow-sm">
+                
+                {/* Summary displayed big, bold, with primary red underline */}
+                {post.summary && (
+                  <div className="mb-8 border-l-4 border-primary pl-4 py-1">
+                    <p className="text-xl sm:text-2xl font-display font-bold text-foreground leading-relaxed underline decoration-primary decoration-2 underline-offset-4">
+                      {post.summary}
+                    </p>
+                  </div>
+                )}
+
                 <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:underline prose-img:rounded-2xl prose-pre:shadow-lg prose-pre:bg-secondary">
-                  {post.summary && (
-                    <div 
-                      className="lead text-lg sm:text-xl md:text-2xl text-foreground font-medium mb-8 font-display leading-relaxed border-l-4 border-primary pl-4" 
-                      dangerouslySetInnerHTML={{ __html: post.summary }} 
-                    />
-                  )}
                   <div dangerouslySetInnerHTML={{ __html: post.content }} />
                 </div>
 
