@@ -38,9 +38,9 @@ const DEFAULT_HOME = {
     titleHighlight: "Sitecore",
     subtitle: "Master XM Cloud, Content Hub, and modern architecture patterns. Technical excellence for the composable DXP era.",
     primaryCtaLabel: "Explore Content",
-    primaryCtaHref: "/",           // ✅ Updated from "/blogs" to "/"
+    primaryCtaHref: "/",
     secondaryCtaLabel: "View Tutorials",
-    secondaryCtaHref: "#whats-hot", // ✅ Updated from "/blogs" to smooth scroll target
+    secondaryCtaHref: "#whats-hot",
   },
   stats: [
     { value: "27+", label: "Sitecore Categories" },
@@ -135,8 +135,8 @@ export async function runSeed() {
     }
   }
   
-  // Force update or seed site content
-  await storage.setSiteContent("home", DEFAULT_HOME);
+  // ✅ Only seed site content if undefined, preserving admin updates across deployments
+  if (await storage.getSiteContent("home") === undefined) await storage.setSiteContent("home", DEFAULT_HOME);
   if (await storage.getSiteContent("about") === undefined) await storage.setSiteContent("about", DEFAULT_ABOUT);
   if (await storage.getSiteContent("contact") === undefined) await storage.setSiteContent("contact", DEFAULT_CONTACT);
 
