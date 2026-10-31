@@ -16,22 +16,25 @@ type Props = {
 export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, testId }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-  const lastEmitted = useRef<string>("");
+  const isInternalChange = useRef(false);
   const [uploading, setUploading] = useState(false);
 
+  // Sync external value changes without resetting cursor if user is actively typing
   useEffect(() => {
     if (!ref.current) return;
-    if (value === lastEmitted.current) return;
-    if (ref.current.innerHTML === value) return;
-    ref.current.innerHTML = value || "";
-    lastEmitted.current = value || "";
+    if (isInternalChange.current) {
+      isInternalChange.current = false;
+      return;
+    }
+    if (ref.current.innerHTML !== value) {
+      ref.current.innerHTML = value || "";
+    }
   }, [value]);
 
   function emit() {
     if (!ref.current) return;
-    const html = ref.current.innerHTML;
-    lastEmitted.current = html;
-    onChange(html);
+    isInternalChange.current = true;
+    onChange(ref.current.innerHTML);
   }
 
   function exec(command: string, arg?: string) {
@@ -86,17 +89,15 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
   );
 
   return (
-    <div className="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+    <div className="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all flex flex-col">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2">
-        
-        {/* Font Family Selector */}
         <div className="flex items-center gap-1 mr-1 pr-2 border-r border-slate-300 dark:border-slate-700">
           <Type className="h-4 w-4 text-slate-500" />
           <select 
             onChange={(e) => setFontFamily(e.target.value)}
             defaultValue=""
-            className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-xs px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary"
+            className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-xs px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
             title="Font Family"
           >
             <option value="" disabled>Font...</option>
@@ -159,7 +160,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
         data-placeholder={placeholder}
         data-testid={testId}
         suppressContentEditableWarning
-        className="rich-editor p-4 outline-none prose prose-slate max-w-none text-slate-800 dark:text-slate-100 dark:prose-invert"
+        className="rich-editor p-4 outline-none prose prose-slate max-w-none text-slate-800 dark:text-slate-100 dark:prose-invert flex-1 cursor-text"
         style={{ minHeight }}
       />
       <style>{`
