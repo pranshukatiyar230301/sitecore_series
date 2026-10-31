@@ -85,6 +85,8 @@
 /* Typography styles for blog content */
 .prose {
   @apply text-foreground;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 .prose h1, .prose h2, .prose h3 {
   @apply font-display text-foreground mt-8 mb-4;
@@ -109,4 +111,15 @@
 }
 .prose a {
   @apply text-primary hover:underline font-medium decoration-2 underline-offset-2;
+}
+
+/* ✅ Fix images overflowing on mobile view inside articles */
+.prose img {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain;
+  border-radius: 0.75rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
