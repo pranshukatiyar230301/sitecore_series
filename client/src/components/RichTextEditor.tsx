@@ -1,5 +1,9 @@
-import { useRef, useEffect, useState } from "react";
-import { Bold, Italic, Underline, Heading1, Heading2, Heading3, Link as LinkIcon, Image as ImageIcon, List, ListOrdered, Quote, Code, Undo, Redo, Pilcrow, Upload, Loader2 } from "lucide-react";
+import { useRef, useState, useEffect } from "react";
+import { 
+  Bold, Italic, Underline, Heading1, Heading2, Heading3, 
+  Link as LinkIcon, Image as ImageIcon, List, ListOrdered, 
+  Quote, Code, Undo, Redo, Pilcrow, Upload, Loader2, Type 
+} from "lucide-react";
 
 type Props = {
   value: string;
@@ -42,16 +46,10 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
     emit();
   }
 
-  function addLink() {
-    const url = prompt("Enter URL (https://...)");
-    if (!url) return;
-    exec("createLink", url);
-  }
-
-  function addImage() {
-    const url = prompt("Enter image URL (https://...)");
-    if (!url) return;
-    exec("insertImage", url);
+  function setFontFamily(font: string) {
+    ref.current?.focus();
+    document.execCommand("fontName", false, font);
+    emit();
   }
 
   async function uploadImage(file: File) {
@@ -80,7 +78,7 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
       onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
       title={title}
-      className="p-2 rounded-md hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+      className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors cursor-pointer"
       data-testid={tid}
     >
       {children}
@@ -88,26 +86,48 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
   );
 
   return (
-    <div className="border border-slate-800 rounded-xl overflow-hidden bg-[#0a0f1d] focus-within:ring-2 focus-within:ring-indigo-500/20 focus-within:border-indigo-500 transition-all">
-      <div className="flex flex-wrap items-center gap-0.5 border-b border-slate-800 bg-[#070b14] px-2 py-1.5">
+    <div className="border border-slate-300 dark:border-slate-700 rounded-xl overflow-hidden bg-white dark:bg-slate-900 shadow-sm focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-1 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-3 py-2">
+        
+        {/* Font Family Selector */}
+        <div className="flex items-center gap-1 mr-1 pr-2 border-r border-slate-300 dark:border-slate-700">
+          <Type className="h-4 w-4 text-slate-500" />
+          <select 
+            onChange={(e) => setFontFamily(e.target.value)}
+            defaultValue=""
+            className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded text-xs px-2 py-1 text-slate-700 dark:text-slate-300 focus:outline-none focus:ring-1 focus:ring-primary"
+            title="Font Family"
+          >
+            <option value="" disabled>Font...</option>
+            <option value="Inter">Inter</option>
+            <option value="Playfair Display">Playfair Display</option>
+            <option value="Arial">Arial</option>
+            <option value="Calibri">Calibri</option>
+            <option value="Times New Roman">Times New Roman</option>
+            <option value="Georgia">Georgia</option>
+            <option value="JetBrains Mono">Monospace</option>
+          </select>
+        </div>
+
         <Btn onClick={() => applyBlock("h1")} title="Heading 1" testId="rt-h1"><Heading1 className="h-4 w-4" /></Btn>
         <Btn onClick={() => applyBlock("h2")} title="Heading 2" testId="rt-h2"><Heading2 className="h-4 w-4" /></Btn>
         <Btn onClick={() => applyBlock("h3")} title="Heading 3" testId="rt-h3"><Heading3 className="h-4 w-4" /></Btn>
         <Btn onClick={() => applyBlock("p")} title="Paragraph" testId="rt-p"><Pilcrow className="h-4 w-4" /></Btn>
-        <span className="w-px h-5 bg-slate-800 mx-1" />
+        <span className="w-px h-5 bg-slate-300 dark:bg-slate-700 mx-1" />
         <Btn onClick={() => exec("bold")} title="Bold" testId="rt-bold"><Bold className="h-4 w-4" /></Btn>
         <Btn onClick={() => exec("italic")} title="Italic" testId="rt-italic"><Italic className="h-4 w-4" /></Btn>
         <Btn onClick={() => exec("underline")} title="Underline" testId="rt-underline"><Underline className="h-4 w-4" /></Btn>
-        <span className="w-px h-5 bg-slate-800 mx-1" />
+        <span className="w-px h-5 bg-slate-300 dark:bg-slate-700 mx-1" />
         <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list" testId="rt-ul"><List className="h-4 w-4" /></Btn>
         <Btn onClick={() => exec("insertOrderedList")} title="Numbered list" testId="rt-ol"><ListOrdered className="h-4 w-4" /></Btn>
         <Btn onClick={() => applyBlock("blockquote")} title="Quote" testId="rt-quote"><Quote className="h-4 w-4" /></Btn>
         <Btn onClick={() => applyBlock("pre")} title="Code block" testId="rt-code"><Code className="h-4 w-4" /></Btn>
-        <span className="w-px h-5 bg-slate-800 mx-1" />
-        <Btn onClick={addLink} title="Insert link" testId="rt-link"><LinkIcon className="h-4 w-4" /></Btn>
-        <Btn onClick={addImage} title="Insert image by URL" testId="rt-image"><ImageIcon className="h-4 w-4" /></Btn>
+        <span className="w-px h-5 bg-slate-300 dark:bg-slate-700 mx-1" />
+        <Btn onClick={() => { const u = prompt("Enter URL (https://...)"); if (u) exec("createLink", u); }} title="Insert link" testId="rt-link"><LinkIcon className="h-4 w-4" /></Btn>
+        <Btn onClick={() => { const u = prompt("Enter image URL (https://...)"); if (u) exec("insertImage", u); }} title="Insert image by URL" testId="rt-image"><ImageIcon className="h-4 w-4" /></Btn>
         <Btn onClick={() => fileRef.current?.click()} title="Upload image from PC" testId="rt-upload">
-          {uploading ? <Loader2 className="h-4 w-4 animate-spin text-indigo-400" /> : <Upload className="h-4 w-4" />}
+          {uploading ? <Loader2 className="h-4 w-4 animate-spin text-primary" /> : <Upload className="h-4 w-4" />}
         </Btn>
         <input
           ref={fileRef}
@@ -119,10 +139,12 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
             if (f) uploadImage(f);
           }}
         />
-        <span className="w-px h-5 bg-slate-800 mx-1" />
+        <span className="w-px h-5 bg-slate-300 dark:bg-slate-700 mx-1" />
         <Btn onClick={() => exec("undo")} title="Undo" testId="rt-undo"><Undo className="h-4 w-4" /></Btn>
         <Btn onClick={() => exec("redo")} title="Redo" testId="rt-redo"><Redo className="h-4 w-4" /></Btn>
       </div>
+
+      {/* Editable Content Box */}
       <div
         ref={ref}
         contentEditable
@@ -137,21 +159,19 @@ export function RichTextEditor({ value, onChange, placeholder, minHeight = 180, 
         data-placeholder={placeholder}
         data-testid={testId}
         suppressContentEditableWarning
-        className="rich-editor px-4 py-3 outline-none prose prose-sm max-w-none text-slate-200 dark:prose-invert"
+        className="rich-editor p-4 outline-none prose prose-slate max-w-none text-slate-800 dark:text-slate-100 dark:prose-invert"
         style={{ minHeight }}
       />
       <style>{`
-        .rich-editor:empty:before { content: attr(data-placeholder); color: rgb(148 163 184 / 0.5); pointer-events: none; }
-        .rich-editor h1 { font-size: 1.875rem; font-weight: 700; margin: 0.5rem 0; color: #fff; }
-        .rich-editor h2 { font-size: 1.5rem; font-weight: 700; margin: 0.5rem 0; color: #fff; }
-        .rich-editor h3 { font-size: 1.25rem; font-weight: 700; margin: 0.5rem 0; color: #fff; }
-        .rich-editor p { margin: 0.25rem 0; color: #cbd5e1; }
-        .rich-editor a { color: #818cf8; text-decoration: underline; }
-        .rich-editor ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; color: #cbd5e1; }
-        .rich-editor ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; color: #cbd5e1; }
-        .rich-editor blockquote { border-left: 3px solid #6366f1; padding-left: 1rem; color: #94a3b8; margin: 0.5rem 0; font-style: italic; }
-        .rich-editor pre { background: #070b14; border: 1px solid #1e293b; padding: 0.75rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.875rem; overflow-x: auto; color: #a5b4fc; }
-        .rich-editor img { max-width: 100%; height: auto; border-radius: 0.5rem; margin: 0.5rem 0; border: 1px solid #1e293b; }
+        .rich-editor:empty:before { content: attr(data-placeholder); color: rgb(148 163 184 / 0.6); pointer-events: none; }
+        .rich-editor h1 { font-size: 1.75rem; font-weight: 700; margin: 0.5rem 0; }
+        .rich-editor h2 { font-size: 1.35rem; font-weight: 700; margin: 0.5rem 0; }
+        .rich-editor h3 { font-size: 1.15rem; font-weight: 600; margin: 0.5rem 0; }
+        .rich-editor p { margin: 0.35rem 0; line-height: 1.6; }
+        .rich-editor ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
+        .rich-editor ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; }
+        .rich-editor blockquote { border-left: 3px solid var(--primary); padding-left: 1rem; margin: 0.5rem 0; font-style: italic; color: #64748b; }
+        .rich-editor img { max-width: 100% !important; height: auto !important; border-radius: 0.75rem; margin: 0.5rem auto; display: block; }
       `}</style>
     </div>
   );
