@@ -81,7 +81,7 @@ const DEFAULT_ABOUT = {
   heroImage: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&q=80&w=2072",
   authorName: "Pranshu Katiyar",
   authorRole: "Lead Author & Developer",
-  authorBio: "A result-oriented software development professional with 3.5 years of experience, specializing in Sitecore SXA, Sitecore Headless & JSS, Sitecore XM Cloud, Sitecore OrderCloud, and Sitecore Helix Architecture.",
+  authorBio: "A result-oriented software development professional with 4+ years of experience, specializing in Sitecore SXA, Sitecore Headless & JSS, Sitecore XM Cloud, Sitecore OrderCloud, and Sitecore Helix Architecture.",
   authorImage: "",
   authorSkills: [
     "Next.js, ASP.NET & C#",
@@ -135,7 +135,6 @@ export async function runSeed() {
     }
   }
   
-  // ✅ Only seed site content if undefined, preserving admin updates across deployments
   if (await storage.getSiteContent("home") === undefined) await storage.setSiteContent("home", DEFAULT_HOME);
   if (await storage.getSiteContent("about") === undefined) await storage.setSiteContent("about", DEFAULT_ABOUT);
   if (await storage.getSiteContent("contact") === undefined) await storage.setSiteContent("contact", DEFAULT_CONTACT);
