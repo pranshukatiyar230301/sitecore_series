@@ -6,12 +6,12 @@ import { useToast } from "@/hooks/use-toast";
 export function Field({ label, required, hint, children }: { label: string; required?: boolean; hint?: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium mb-1.5 block text-slate-700 dark:text-slate-200">
+      <span className="text-sm font-medium mb-1.5 block">
         {label}
         {required && <span className="text-destructive ml-1">*</span>}
       </span>
       {children}
-      {hint && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{hint}</p>}
+      {hint && <p className="text-xs text-muted-foreground mt-1">{hint}</p>}
     </label>
   );
 }
@@ -21,7 +21,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
     <input
       {...props}
       className={
-        "w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition " +
+        "w-full px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition " +
         (props.className || "")
       }
     />
@@ -33,7 +33,7 @@ export function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement
     <textarea
       {...props}
       className={
-        "w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-100 outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition resize-y " +
+        "w-full px-4 py-2.5 rounded-xl border border-border bg-background outline-none focus:border-primary focus:ring-2 focus:ring-primary/15 transition resize-y " +
         (props.className || "")
       }
     />
@@ -63,7 +63,7 @@ export function ImageUploadButton({ onUploaded, label = "Upload from PC" }: { on
             if (!res.ok) throw new Error((await res.text()) || "Upload failed");
             const data = await res.json();
             onUploaded(data.url);
-            toast({ title: "Image uploaded successfully" });
+            toast({ title: "Image uploaded" });
           } catch (err: any) {
             toast({ title: "Upload failed", description: err?.message, variant: "destructive" });
           } finally {
@@ -77,7 +77,7 @@ export function ImageUploadButton({ onUploaded, label = "Upload from PC" }: { on
         variant="outline"
         disabled={busy}
         onClick={() => inputRef.current?.click()}
-        className="rounded-xl whitespace-nowrap border-slate-300 dark:border-slate-700"
+        className="rounded-xl whitespace-nowrap"
       >
         {busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />}
         {label}
@@ -98,16 +98,16 @@ export function ImageField({ value, onChange }: { value: string | null | undefin
         />
         <ImageUploadButton onUploaded={(url) => onChange(url)} />
       </div>
-      {value && <img src={value} alt="" className="mt-2 h-24 w-auto rounded-lg border border-slate-300 dark:border-slate-700 object-cover shadow-sm" />}
+      {value && <img src={value} alt="" className="mt-2 h-24 w-auto rounded-lg border border-border object-cover" />}
     </>
   );
 }
 
 export function SectionCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm">
+    <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-border p-6 shadow-sm">
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-lg font-display font-bold text-slate-800 dark:text-slate-100">{title}</h3>
+        <h3 className="text-lg font-display font-bold">{title}</h3>
         {action}
       </div>
       {children}
@@ -125,7 +125,7 @@ export function ListEditor<T>({
   return (
     <div className="space-y-4">
       {items.map((item, i) => (
-        <div key={i} className="border border-slate-200 dark:border-slate-800 rounded-xl p-4 bg-slate-50/50 dark:bg-slate-950/50">
+        <div key={i} className="border border-border rounded-xl p-4 bg-muted/20">
           {render(
             item,
             (patch) => onChange(items.map((x, idx) => (idx === i ? { ...x, ...patch } : x))),
@@ -134,7 +134,7 @@ export function ListEditor<T>({
           )}
         </div>
       ))}
-      <Button type="button" variant="outline" className="rounded-full border-slate-300 dark:border-slate-700" onClick={() => onChange([...items, newItem()])}>
+      <Button type="button" variant="outline" className="rounded-full" onClick={() => onChange([...items, newItem()])}>
         <Plus className="h-4 w-4 mr-2" /> {addLabel}
       </Button>
     </div>
