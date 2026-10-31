@@ -93,6 +93,18 @@ app.use((req, res, next) => {
     },
     () => {
       log(`serving on port ${port}`);
+
+      // 🕒 Self-ping scheduler to keep Render free tier awake (every 6 minutes)
+      const PING_INTERVAL = 6 * 60 * 1000; // 6 minutes
+      setInterval(async () => {
+        try {
+          const baseUrl = process.env.RENDER_EXTERNAL_URL || `http://localhost:${port}`;
+          const res = await fetch(`${baseUrl}/contact`);
+          log(`Self-ping heartbeat sent to /contact: Status ${res.status}`, "scheduler");
+        } catch (err: any) {
+          log(`Self-ping failed: ${err?.message}`, "scheduler");
+        }
+      }, PING_INTERVAL);
     },
   );
 })();
