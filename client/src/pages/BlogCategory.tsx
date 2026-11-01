@@ -10,7 +10,7 @@ export default function BlogCategory() {
   const [, params] = useRoute("/blogs/:category");
   const categorySlug = params?.category || "";
 
-  // Fetch categories directly from Neon Database via API
+  // Fetch categories directly from the database via API
   const { data: dbCategories = [], isLoading: categoriesLoading } = useQuery<any[]>({
     queryKey: ["/api/categories"],
   });
@@ -19,7 +19,7 @@ export default function BlogCategory() {
     (c) => c.slug?.toLowerCase() === categorySlug.toLowerCase()
   );
 
-  // Purely database-driven fallback logic (no hardcoded dict)
+  // Database-driven metadata with clean dynamic fallbacks
   const meta = {
     name: matchedDbCategory?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
     tagline: matchedDbCategory?.tagline || "Sitecore Knowledge",
