@@ -111,8 +111,8 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     });
   });
 
-  // ----- Site content (singletons: home / about / contact) -----
-  const ALLOWED_KEYS = new Set(["home", "about", "contact"]);
+  // ----- Site content (singletons: home / about / contact / footer) -----
+  const ALLOWED_KEYS = new Set(["home", "about", "contact", "footer"]);
   app.get("/api/site-content/:key", async (req, res) => {
     if (!ALLOWED_KEYS.has(req.params.key)) return res.status(404).json({ message: "Unknown key" });
     const data = await storage.getSiteContent(req.params.key);
@@ -198,7 +198,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     try {
       const data = insertContactSchema.parse(req.body);
       const contact = await storage.createContact(data);
-      // Fire-and-forget email; do not block response on transient SendGrid errors
       sendContactEmail(data).catch((err) => console.error("[email] unexpected:", err));
       res.status(201).json(contact);
     } catch (e) {

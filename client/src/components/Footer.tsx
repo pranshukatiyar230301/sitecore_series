@@ -21,7 +21,7 @@ export function Footer() {
   const [copied, setCopied] = useState(false);
 
   const { data: footerData } = useQuery<any>({
-    queryKey: ["/api/site-content/footer"],
+    queryKey: ["/api/site-content", "footer"],
     staleTime: 1000 * 60 * 5,
   });
 
@@ -49,14 +49,12 @@ export function Footer() {
 
   return (
     <footer className="relative bg-black text-zinc-300 mt-auto border-t border-zinc-900 overflow-hidden">
-      {/* Background Ambient Glows */}
       <div className="absolute top-0 left-1/4 w-96 h-32 bg-red-600/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-32 bg-rose-600/10 rounded-full blur-[100px] pointer-events-none" />
 
       <div className="relative z-10 container mx-auto px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 lg:gap-12">
           
-          {/* Brand Info (4 Cols) */}
           <div className="md:col-span-4 space-y-4">
             <Link href="/">
               <div className="inline-flex items-center gap-2.5 cursor-pointer group">
@@ -79,7 +77,6 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Quick Links (2 Cols) */}
           <div className="md:col-span-2">
             <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-4">
               Explore
@@ -98,7 +95,6 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Topics (3 Cols) */}
           <div className="md:col-span-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-4">
               Topics
@@ -116,13 +112,11 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Connect & Direct Contact (3 Cols) */}
           <div className="md:col-span-3 space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-200 mb-4">
               Connect
             </h3>
 
-            {/* Social Links */}
             <div className="flex items-center gap-2.5 flex-wrap">
               {socials.map((social, i) => {
                 const Icon = social.icon;
@@ -141,7 +135,6 @@ export function Footer() {
               })}
             </div>
 
-            {/* Interactive Email Bar */}
             <div className="p-3 rounded-xl bg-zinc-900/90 border border-zinc-800 space-y-2">
               <span className="text-xs text-zinc-400 font-medium flex items-center gap-1.5">
                 <Mail className="h-3.5 w-3.5 text-red-500" /> Direct Reach out
@@ -163,7 +156,6 @@ export function Footer() {
 
         </div>
 
-        {/* Bottom Bar */}
         <div className="border-t border-zinc-900 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-zinc-500">
           <p>© {new Date().getFullYear()} SitecoreSeries. All rights reserved.</p>
           <p className="text-zinc-500 text-center sm:text-right">
