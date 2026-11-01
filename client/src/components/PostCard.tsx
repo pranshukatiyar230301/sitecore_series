@@ -15,8 +15,11 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
           <div className="relative aspect-[16/10] md:aspect-auto md:min-h-[360px] overflow-hidden bg-slate-900 flex items-center justify-center p-4">
             {post.coverImage ? (
               <img
-                src={post.coverImage}
+                src={post.coverImage || '/default-thumbnail.png'}
                 alt={post.title}
+                onError={(e) => {
+                  e.currentTarget.src = '/default-thumbnail.png';
+                }}
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             ) : (
@@ -59,6 +62,7 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
             <span className="inline-flex items-center gap-2 font-semibold text-white group-hover:text-indigo-400 transition-colors group-hover:gap-3 duration-300">
               Read the guide <ArrowRight className="h-4 w-4 text-indigo-400 transition-transform group-hover:translate-x-1" />
             </span>
+
           </div>
         </article>
       </Link>
@@ -72,10 +76,14 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
           <span className="absolute top-3 left-3 z-10 bg-[#0a0f1d]/90 backdrop-blur text-slate-300 px-2.5 py-1 rounded text-[11px] font-bold uppercase tracking-wider border border-slate-800 shadow-sm">
             {post.category}
           </span>
+
           {post.coverImage ? (
             <img
-              src={post.coverImage}
+              src={post.coverImage || '/default-thumbnail.png'}
               alt={post.title}
+              onError={(e) => {
+                e.currentTarget.src = '/default-thumbnail.png';
+              }}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
@@ -112,6 +120,7 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
             <span className="text-xs font-semibold text-indigo-400 flex items-center gap-1 group-hover:underline">
               Read article <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
             </span>
+
           </div>
         </div>
       </article>
