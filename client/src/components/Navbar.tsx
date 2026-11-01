@@ -14,6 +14,7 @@ export function Navbar() {
   const [location, setLocation] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [mobileBlogsOpen, setMobileBlogsOpen] = useState(false);
   const { data: categories } = useCategories();
 
   const grouped = useMemo(() => {
@@ -54,7 +55,6 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
           <Link href="/">
             <div className="flex items-center gap-2.5 cursor-pointer group">
-              {/* Rounded Pill / Soft Card Logo instead of harsh box */}
               <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg shadow-red-500/20 group-hover:scale-105 transition-transform">
                 <span className="text-white font-black text-lg">S</span>
               </div>
@@ -146,15 +146,28 @@ export function Navbar() {
             <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Podcasts & Insights</div></Link>
             <Link href="/events" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Events</div></Link>
             
-            <div className="px-3 py-2 text-xs font-bold text-red-500 uppercase tracking-wider pt-3">
-              Blogs & Articles
-              <div className="mt-2 ml-2 space-y-1 border-l-2 border-zinc-800 pl-3 max-h-60 overflow-y-auto">
-                {(categories || []).map((cat) => (
-                  <Link key={cat.slug} href={`/blogs/${cat.slug}`} onClick={() => setMobileMenuOpen(false)}>
-                    <div className="block py-1.5 text-sm font-medium text-zinc-400 hover:text-red-400 cursor-pointer">{cat.name}</div>
-                  </Link>
-                ))}
+            {/* Mobile Dropdown - stays collapsed until clicked */}
+            <div className="px-3 py-2">
+              <div 
+                onClick={() => setMobileBlogsOpen(!mobileBlogsOpen)}
+                className="flex items-center justify-between text-xs font-bold text-red-500 uppercase tracking-wider cursor-pointer hover:text-red-400 py-1"
+              >
+                <span>Blogs & Articles</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", mobileBlogsOpen && "rotate-180")} />
               </div>
+
+              {mobileBlogsOpen && (
+                <div className="mt-2 ml-2 space-y-1 border-l-2 border-zinc-800 pl-3 max-h-60 overflow-y-auto animate-in fade-in duration-150">
+                  {(categories || []).map((cat) => (
+                    <Link key={cat.slug} href={`/blogs/${cat.slug}`} onClick={() => setMobileMenuOpen(false)}>
+                      <div className="block py-1.5 text-sm font-medium text-zinc-400 hover:text-red-400 cursor-pointer">{cat.name}</div>
+                    </Link>
+                  ))}
+                  {(!categories || categories.length === 0) && (
+                    <span className="text-xs text-zinc-600 italic py-1 block">No categories yet</span>
+                  )}
+                </div>
+              )}
             </div>
 
             <Link href="/contact" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Contact Us</div></Link>
