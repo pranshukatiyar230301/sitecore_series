@@ -103,14 +103,14 @@ export default function Home() {
   const whyCards = home.whyCards || [];
 
   return (
-    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500 selection:text-white overflow-x-hidden font-sans">
-      {/* Hero Section */}
-      <section className="relative min-h-[70vh] flex items-center bg-secondary py-16 lg:py-20 overflow-hidden border-b border-white/10">
+    <div className="min-h-screen bg-background text-foreground selection:bg-indigo-500 selection:text-white overflow-x-hidden font-sans w-full">
+      {/* Hero Section - Full Width Edge-to-Edge */}
+      <section className="relative w-full min-h-[70vh] flex items-center bg-secondary py-16 lg:py-24 overflow-hidden border-b border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/25 via-transparent to-transparent pointer-events-none" />
         <div className="absolute top-1/4 -right-20 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[160px] pointer-events-none animate-pulse" />
         <div className="absolute -bottom-48 -left-48 w-[700px] h-[700px] bg-primary/10 rounded-full blur-[160px] pointer-events-none" />
 
-        <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-4xl mx-auto text-center lg:text-left">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -176,13 +176,13 @@ export default function Home() {
 
       {/* Stats Section */}
       {home.stats?.length > 0 && (
-        <section className="relative -mt-10 z-20 mb-8">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="relative -mt-10 z-20 mb-8 w-full">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="max-w-5xl mx-auto bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/10 border border-border/80 p-6 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-6"
+              className="w-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl rounded-3xl shadow-xl shadow-black/10 border border-border/80 p-6 md:p-8 grid grid-cols-2 md:grid-cols-4 gap-6"
             >
               {home.stats.map((stat: any, i: number) => (
                 <div key={i} className="text-center group border-r last:border-r-0 border-border/50 px-2">
@@ -197,8 +197,8 @@ export default function Home() {
 
       {/* Featured Post */}
       {featuredPost && (
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="max-w-6xl mx-auto">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="w-full">
             <PostCard post={featuredPost} featured />
           </div>
         </div>
@@ -206,7 +206,7 @@ export default function Home() {
 
       {/* Highlights Section */}
       {home.highlights?.length > 0 && (
-        <section id="whats-hot" className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <section id="whats-hot" className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center mb-10 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-3">
               <Sparkles className="h-3.5 w-3.5" /> Curated Collections
@@ -215,7 +215,7 @@ export default function Home() {
             <p className="text-muted-foreground text-base">{home.highlightSectionSubtitle}</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
             {home.highlights.map((b: any, i: number) => (
               <Link key={i} href={b.href || "/"}>
                 <motion.div 
@@ -239,10 +239,10 @@ export default function Home() {
         </section>
       )}
 
-      {/* Testimonials Section */}
+      {/* Testimonials Section - Full Width Background */}
       {home.testimonials?.length > 0 && (
-        <section className="py-16 bg-secondary/5 border-y border-border/50 overflow-hidden">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+        <section className="w-full py-16 bg-secondary/5 border-y border-border/50 overflow-hidden">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div className="relative flex flex-col items-center text-center mb-10">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-bold uppercase tracking-widest mb-3">
@@ -308,9 +308,9 @@ export default function Home() {
         </section>
       )}
 
-      {/* Recent Articles Section */}
-      <section className="py-10 bg-secondary/5 border-y border-border/50 overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+      {/* Recent Articles Section - Full Width Background */}
+      <section className="w-full py-10 bg-secondary/5 border-y border-border/50 overflow-hidden">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="relative flex flex-col items-center text-center mb-6">
             <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold uppercase tracking-widest mb-2">
@@ -389,11 +389,11 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Why We Exist Section */}
+      {/* Why We Exist Section - Full Width Edge-to-Edge */}
       {whyCards.length > 0 && (
-        <section className="relative bg-secondary text-white py-16 overflow-hidden">
+        <section className="relative w-full bg-secondary text-white py-16 overflow-hidden">
           <div className="absolute top-0 left-0 w-2/3 h-full bg-gradient-to-r from-primary/20 to-transparent opacity-40 pointer-events-none" />
-          <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/15 text-primary text-xs font-bold uppercase tracking-widest mb-4 border border-primary/20 shadow-lg">
@@ -487,9 +487,9 @@ export default function Home() {
       )}
 
       {/* Newsletter Section */}
-      <section id="newsletter" className="bg-background py-16 scroll-mt-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-card rounded-3xl p-8 md:p-12 text-center max-w-4xl mx-auto shadow-xl shadow-black/5 border border-border/80 relative overflow-hidden">
+      <section id="newsletter" className="w-full bg-background py-16 scroll-mt-20">
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-card rounded-3xl p-8 md:p-12 text-center w-full shadow-xl shadow-black/5 border border-border/80 relative overflow-hidden">
             <div className="absolute -top-20 -right-20 w-52 h-52 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
             <div className="relative z-10">
               <h2 className="text-2xl md:text-3xl font-display font-extrabold mb-3 tracking-tight">{home.newsletterTitle}</h2>

@@ -113,7 +113,7 @@
   @apply text-primary hover:underline font-medium decoration-2 underline-offset-2;
 }
 
-/* ✅ Fix images overflowing on mobile view inside articles */
+/* Fix images overflowing on mobile view inside articles */
 .prose img {
   max-width: 100% !important;
   height: auto !important;
@@ -122,4 +122,20 @@
   margin-left: auto;
   margin-right: auto;
   display: block;
+}
+
+/* ✅ Fix boxed desktop view by letting containers scale smoothly on large screens */
+.container {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+
+@media (min-width: 1536px) {
+  .container {
+    max-width: 1536px !important;
+  }
 }
