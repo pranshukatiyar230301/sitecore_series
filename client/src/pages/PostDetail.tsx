@@ -131,8 +131,11 @@ export default function PostDetail() {
               className="rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl mb-8 sm:mb-12 aspect-[16/8] bg-card border border-border/60 p-2 sm:p-4 md:p-6"
             >
               <img 
-                src={post.coverImage} 
+                src={post.coverImage || '/default-thumbnail.png'} 
                 alt={post.title} 
+                onError={(e) => {
+                  e.currentTarget.src = '/default-thumbnail.png';
+                }}
                 className="w-full h-full object-contain rounded-xl sm:rounded-2xl"
               />
             </motion.div>
@@ -177,7 +180,7 @@ export default function PostDetail() {
                     type="button" 
                     title="Share on WhatsApp" 
                     aria-label="Share on WhatsApp" 
-                    onClick={() => openShareWindow(`https://wa.me/?text=${encodeURIComponent(`${post.title} - ${shareUrl}`)}`)} 
+                    onClick={() => openShareWindow(`https://wa.me/?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`)} 
                     className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all duration-200 hover:scale-105"
                   >
                     <FaWhatsapp className="h-4 w-4" />
