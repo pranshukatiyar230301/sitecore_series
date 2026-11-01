@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useRoute } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { usePosts } from "@/hooks/use-posts";
 import { PostCard } from "@/components/PostCard";
 import { ArrowRight, BookOpen, Loader2, Search, Sparkles, X } from "lucide-react";
@@ -163,10 +164,21 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
 export default function BlogCategory() {
   const [, params] = useRoute("/blogs/:category");
   const categorySlug = params?.category || "";
-  const meta = CATEGORY_META[categorySlug] || {
-    name: "Blog Category",
-    tagline: "Sitecore Knowledge",
-    description: "Explore our latest articles and tutorials on this topic.",
+
+  // Fetch dynamic categories from database
+  const { data: dbCategories = [] } = useQuery<any[]>({
+    queryKey: ["/api/categories"],
+  });
+
+  const matchedDbCategory = dbCategories.find(
+    (c) => c.slug?.toLowerCase() === categorySlug.toLowerCase()
+  );
+
+  // Resolve metadata: Hardcoded dictionary -> Database category -> Fallback slug formatting
+  const meta: CategoryMeta = CATEGORY_META[categorySlug] || {
+    name: matchedDbCategory?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+    tagline: matchedDbCategory?.tagline || "Sitecore Knowledge",
+    description: matchedDbCategory?.description || `Explore our latest articles and tutorials on ${categorySlug.replace(/-/g, " ")}.`,
   };
 
   const { data: posts, isLoading } = usePosts(meta.name);
@@ -180,16 +192,18 @@ export default function BlogCategory() {
     );
   }
 
-  // Robust client-side filter as fallback (case-insensitive exact-name match)
+  // Robust client-side filter (case-insensitive exact-name match)
   const categoryPosts = (posts || []).filter(
-    (p) => p.category.toLowerCase() === meta.name.toLowerCase()
+    (p) => p.category?.toLowerCase() === meta.name.toLowerCase()
   );
+
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const filteredPosts = categoryPosts.filter((post) => {
     if (!normalizedQuery) return true;
     const searchableText = `${post.title} ${post.summary} ${post.content}`.replace(/<[^>]*>/g, "").toLowerCase();
     return searchableText.includes(normalizedQuery);
   });
+
   const featuredPost = filteredPosts[0];
   const remainingPosts = filteredPosts.slice(1);
 
