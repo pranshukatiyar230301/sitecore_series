@@ -119,6 +119,29 @@ const DEFAULT_CONTACT = {
   ],
 };
 
+const DEFAULT_FOOTER = {
+  description: "Sharing knowledge, architecture guides, and tutorials for the Sitecore ecosystem. Mastering modern digital experience platforms one post at a time.",
+  badgeText: "Community-Led Platform",
+  email: "pranshukatiyar230301@gmail.com",
+  twitter: "https://twitter.com/sitecoreseries",
+  linkedin: "https://linkedin.com/in/er-pranshu-katiyar-a77aa8197",
+  facebook: "https://facebook.com",
+  instagram: "https://instagram.com",
+  youtube: "https://youtube.com",
+  exploreLinks: [
+    { label: "About Us", href: "/about" },
+    { label: "Contact", href: "/contact" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+  ],
+  topicLinks: [
+    { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
+    { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
+    { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
+    { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
+  ],
+};
+
 const SAMPLE_POSTS = [
   { title: "Getting Started with Sitecore Content Hub", slug: "getting-started-content-hub", category: "Sitecore Content Hub", summary: "An introduction to the capabilities of Sitecore Content Hub for DAM and CMP.", content: "Sitecore Content Hub is a unified platform...", coverImage: "https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=800&q=80", published: true },
   { title: "SXA Best Practices for 2024", slug: "sxa-best-practices-2024", category: "Sitecore SXA", summary: "Learn how to optimize your Sitecore Experience Accelerator implementation.", content: "SXA speeds up production...", coverImage: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80", published: true },
@@ -138,6 +161,7 @@ export async function runSeed() {
   if (await storage.getSiteContent("home") === undefined) await storage.setSiteContent("home", DEFAULT_HOME);
   if (await storage.getSiteContent("about") === undefined) await storage.setSiteContent("about", DEFAULT_ABOUT);
   if (await storage.getSiteContent("contact") === undefined) await storage.setSiteContent("contact", DEFAULT_CONTACT);
+  if (await storage.getSiteContent("footer") === undefined) await storage.setSiteContent("footer", DEFAULT_FOOTER);
 
   const existingPosts = await storage.getPosts(undefined, { includeUnpublished: true });
   if (existingPosts.length === 0) {
