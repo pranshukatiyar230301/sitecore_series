@@ -288,87 +288,54 @@ function PostFormModal({ initial, isEdit, onClose }: { initial: Post | InsertPos
         {/* Scrollable Form Body */}
         <form onSubmit={(e) => e.preventDefault()} className="p-5 sm:p-8 space-y-6 overflow-y-auto flex-1">
           <Field label="Title" required>
-            <input value={form.title} onChange={(e) => update("title", e.target.value)} required placeholder="My amazing Sitecore article" className="input-base" data-testid="input-post-title" />
-            {!isEdit && form.title && (
-              <p className="text-xs text-muted-foreground mt-1.5">URL slug: <code className="bg-muted px-1.5 py-0.5 rounded text-primary">{slugify(form.title)}</code></p>
-            )}
+            <input value={form.title} onChange={(e) => update("title", e.target.value)} required placeholder="My amazing Sitecore article" className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm" data-testid="input-post-title" />
           </Field>
 
-          <Field label="Category" required>
-            <select value={form.category} onChange={(e) => update("category", e.target.value)} required className="input-base cursor-pointer" data-testid="select-post-category">
-              <option value="">— Select a category —</option>
-              {Object.entries(groups).map(([group, items]) => (
-                <optgroup key={group} label={group}>
-                  {items.map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
-                </optgroup>
-              ))}
-            </select>
+          <Field label="URL Slug">
+            <input value={form.slug} onChange={(e) => update("slug", e.target.value)} placeholder="my-amazing-sitecore-article" className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm" data-testid="input-post-slug" />
           </Field>
 
-          <Field label="Author name" required>
-            <input value={form.authorName ?? ""} onChange={(e) => update("authorName", e.target.value)} required placeholder="Pranshu Katiyar" className="input-base" data-testid="input-post-author-name" />
-          </Field>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Field label="Category" required>
+              <select value={form.category} onChange={(e) => update("category", e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm" data-testid="select-post-category">
+                <option value="">Select category...</option>
+                {Object.entries(groups).map(([group, groupCats]) => (
+                  <optgroup key={group} label={group}>
+                    {groupCats.map((c) => (<option key={c.id} value={c.name}>{c.name}</option>))}
+                  </optgroup>
+                ))}
+              </select>
+            </Field>
 
-          <Field label="Cover image">
-            <ImageField value={form.coverImage} onChange={(v) => update("coverImage", v)} />
-          </Field>
-
-          {/* Multiline Textarea for Summary (Big, Bold, Red Underline) */}
-          <div className="space-y-2">
-            <h3 className="text-xs sm:text-sm font-semibold text-foreground">Summary <span className="text-destructive">*</span></h3>
-            <textarea
-              value={form.summary}
-              onChange={(e) => update("summary", e.target.value)}
-              placeholder="Short summary that appears in post cards..."
-              rows={3}
-              required
-              className="input-base summary-highlight resize-y"
-              data-testid="input-post-summary"
-            />
+            <Field label="Author Name" required>
+              <input value={form.authorName || ""} onChange={(e) => update("authorName", e.target.value)} required className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm" data-testid="input-post-author" />
+            </Field>
           </div>
 
-          <Field label="Content" required>
+          <Field label="Cover Image">
+            <ImageField value={form.coverImage} onChange={(url) => update("coverImage", url)} />
+          </Field>
+
+          <Field label="Summary / Excerpt" required>
+            <textarea value={form.summary} onChange={(e) => update("summary", e.target.value)} rows={3} required placeholder="Brief overview of the article..." className="w-full rounded-xl border border-border bg-background px-4 py-2.5 text-sm" data-testid="input-post-summary" />
+          </Field>
+
+          <Field label="Full Content (HTML / Rich Text)" required>
             <MemoizedContentEditor value={form.content} onChange={(html) => update("content", html)} />
           </Field>
         </form>
 
-        {/* Footer - Fixed at bottom so buttons are always visible */}
-        <div className="flex flex-wrap gap-3 justify-end p-4 sm:p-5 border-t border-border bg-card shadow-lg shrink-0">
-          <Button type="button" variant="outline" onClick={onClose} className="rounded-full text-xs sm:text-sm cursor-pointer">Cancel</Button>
-          <Button type="button" variant="outline" disabled={mutation.isPending}
-            onClick={() => { if (!validate(form, toast)) return; mutation.mutate(false); }}
-            className="rounded-full font-bold px-5 text-xs sm:text-sm cursor-pointer" data-testid="button-save-draft">
-            <FileEdit className="h-4 w-4 mr-1.5" /> Save as Draft
+        {/* Footer - Fixed */}
+        <div className="flex items-center justify-end gap-3 p-4 sm:p-6 border-t border-border shrink-0 bg-muted/30">
+          <Button variant="outline" onClick={onClose} className="rounded-xl">Cancel</Button>
+          <Button variant="outline" onClick={() => mutation.mutate(false)} disabled={mutation.isPending} className="rounded-xl" data-testid="button-save-draft">
+            Save Draft
           </Button>
-          <Button type="button" disabled={mutation.isPending}
-            onClick={() => { if (!validate(form, toast)) return; mutation.mutate(true); }}
-            className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 text-xs sm:text-sm shadow-md shadow-emerald-600/20 cursor-pointer"
-            data-testid="button-publish-post">
-            {mutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <><Send className="h-4 w-4 mr-1.5" /> {isEdit && (initial as any).published ? "Save & Keep Published" : "Publish Now"}</>}
+          <Button onClick={() => mutation.mutate(true)} disabled={mutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl" data-testid="button-save-publish">
+            {mutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save & Publish
           </Button>
         </div>
       </div>
-      <style>{`
-        .input-base { width: 100%; padding: 0.625rem 1rem; border-radius: 0.75rem; border: 1px solid hsl(var(--border)); background: hsl(var(--background)); outline: none; transition: all 0.15s; font-size: 0.875rem; color: hsl(var(--foreground)); } 
-        .input-base:focus { border-color: hsl(var(--primary)); box-shadow: 0 0 0 3px hsl(var(--primary) / 0.15); }
-        
-        /* Big, bold summary text with primary red underline */
-        .summary-highlight {
-          font-size: 1.15rem !important;
-          font-weight: 700 !important;
-          text-decoration: underline !important;
-          text-decoration-color: hsl(var(--primary)) !important;
-          text-underline-offset: 4px !important;
-        }
-      `}</style>
     </div>
   );
-}
-
-function validate(form: InsertPost, toast: (opts: any) => void): boolean {
-  if (!form.title.trim()) { toast({ title: "Title is required", variant: "destructive" }); return false; }
-  if (!form.category.trim()) { toast({ title: "Category is required", variant: "destructive" }); return false; }
-  if (!form.summary.trim()) { toast({ title: "Summary is required", variant: "destructive" }); return false; }
-  if (!form.content || !form.content.replace(/<[^>]*>/g, "").trim()) { toast({ title: "Content is required", variant: "destructive" }); return false; }
-  return true;
 }
