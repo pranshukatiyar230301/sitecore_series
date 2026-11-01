@@ -1,10 +1,43 @@
 import { useState } from "react";
 import { Link } from "wouter";
-import { Twitter, Linkedin, Mail, Copy, Check, ArrowUpRight, Flame, Facebook, Instagram, Youtube ,} from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { Twitter, Linkedin, Mail, Copy, Check, ArrowUpRight, Flame, Facebook, Instagram, Youtube } from "lucide-react";
 
 export function Footer() {
   const [copied, setCopied] = useState(false);
-  const email = "pranshukatiyar230301@gmail.com";
+
+  // Fetch footer content from your site content API
+  const { data: footerData } = useQuery<any>({
+    queryKey: ["/api/site-content/footer"],
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const email = footerData?.email || "pranshukatiyar230301@gmail.com";
+  const description = footerData?.description || "Sharing knowledge, architecture guides, and tutorials for the Sitecore ecosystem. Mastering modern digital experience platforms one post at a time.";
+  const badgeText = footerData?.badgeText || "Community-Led Platform";
+  
+  const exploreLinks = footerData?.exploreLinks || [
+    { label: "About Us", href: "/about" },
+    { label: "Contact", href: "/contact" },
+    { label: "Privacy Policy", href: "/privacy" },
+    { label: "Terms of Service", href: "/terms" },
+  ];
+
+  const topicLinks = footerData?.topicLinks || [
+    { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
+    { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
+    { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
+    { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
+  ];
+
+  const socials = [
+    { icon: Twitter, href: footerData?.twitter || "https://twitter.com/sitecoreseries", label: "Twitter" },
+    { icon: Linkedin, href: footerData?.linkedin || "https://linkedin.com/in/er-pranshu-katiyar-a77aa8197", label: "LinkedIn" },
+    { icon: Facebook, href: footerData?.facebook || "https://facebook.com", label: "Facebook" },
+    { icon: Instagram, href: footerData?.instagram || "https://instagram.com", label: "Instagram" },
+    { icon: Mail, href: `mailto:${email}`, label: "Email" },
+    { icon: Youtube, href: footerData?.youtube || "https://youtube.com", label: "YouTube" },
+  ];
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -35,12 +68,12 @@ export function Footer() {
             </Link>
 
             <p className="text-zinc-400 text-sm leading-relaxed max-w-sm">
-              Sharing knowledge, architecture guides, and tutorials for the Sitecore ecosystem. Mastering modern digital experience platforms one post at a time.
+              {description}
             </p>
 
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-xs text-red-400 font-medium">
               <Flame className="h-3.5 w-3.5 text-red-500" />
-              <span>Community-Led Platform</span>
+              <span>{badgeText}</span>
             </div>
           </div>
 
@@ -50,12 +83,7 @@ export function Footer() {
               Explore
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {[
-                { label: "About Us", href: "/about" },
-                { label: "Contact", href: "/contact" },
-                { label: "Privacy Policy", href: "/privacy" },
-                { label: "Terms of Service", href: "/terms" },
-              ].map((item) => (
+              {exploreLinks.map((item: any) => (
                 <li key={item.href}>
                   <Link href={item.href}>
                     <span className="text-zinc-400 hover:text-red-400 transition-colors duration-200 cursor-pointer inline-flex items-center gap-1 group">
@@ -74,12 +102,7 @@ export function Footer() {
               Topics
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {[
-                { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
-                { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
-                { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
-                { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
-              ].map((item) => (
+              {topicLinks.map((item: any) => (
                 <li key={item.href}>
                   <Link href={item.href}>
                     <span className="text-zinc-400 hover:text-red-400 transition-colors duration-200 cursor-pointer">
@@ -98,15 +121,8 @@ export function Footer() {
             </h3>
 
             {/* Social Links */}
-            <div className="flex items-center gap-2.5">
-              {[
-                { icon: Twitter, href: "https://twitter.com/sitecoreseries", label: "Twitter" },
-                { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-                { icon: Facebook, href: "https://facebook.com", label: "Facebook" },
-                { icon: Instagram, href: "https://instagram.com", label: "Instagram" },
-                { icon: Mail, href: `mailto:${email}`, label: "Email" },
-                { icon: Youtube, href: "https://youtube.com", label: "YouTube" },
-              ].map((social, i) => {
+            <div className="flex items-center gap-2.5 flex-wrap">
+              {socials.map((social, i) => {
                 const Icon = social.icon;
                 return (
                   <a

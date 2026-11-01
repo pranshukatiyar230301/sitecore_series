@@ -7,17 +7,18 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Plus, Pencil, Trash2, LogOut, ShieldCheck, X, Filter, Send,
-  EyeOff, CheckCircle2, FileEdit, FileText, Tag, Calendar, Mic, Home as HomeIcon, Info, Mail, Inbox,
+  EyeOff, CheckCircle2, FileEdit, FileText, Tag, Calendar, Mic, Home as HomeIcon, Info, Mail, Inbox, LayoutTemplate,
 } from "lucide-react";
 import type { Post, InsertPost, Category } from "@shared/schema";
 import { api } from "@shared/routes";
 import { useCategories, slugify } from "@/lib/categories";
 import { RichTextEditor } from "@/components/RichTextEditor";
 import { HomeEditor, AboutEditor, ContactEditor } from "@/components/admin/SiteContentEditors";
+import { FooterEditor } from "@/components/admin/FooterEditor";
 import { EventsManager, PodcastsManager, CategoriesManager, ContactSubmissionsViewer } from "@/components/admin/ListManagers";
 import { Field, ImageField } from "@/components/admin/AdminShared";
 
-type SectionId = "posts" | "categories" | "events" | "podcasts" | "home" | "about" | "contact" | "submissions";
+type SectionId = "posts" | "categories" | "events" | "podcasts" | "home" | "about" | "contact" | "footer" | "submissions";
 
 const SECTIONS: { id: SectionId; label: string; icon: any }[] = [
   { id: "posts", label: "Blogs & Articles", icon: FileText },
@@ -27,6 +28,7 @@ const SECTIONS: { id: SectionId; label: string; icon: any }[] = [
   { id: "home", label: "Home page content", icon: HomeIcon },
   { id: "about", label: "About Us content", icon: Info },
   { id: "contact", label: "Contact Us content", icon: Mail },
+  { id: "footer", label: "Footer Settings", icon: LayoutTemplate },
   { id: "submissions", label: "Contact submissions", icon: Inbox },
 ];
 
@@ -100,6 +102,7 @@ export default function AdminDashboard() {
             {section === "home" && <HomeEditor />}
             {section === "about" && <AboutEditor />}
             {section === "contact" && <ContactEditor />}
+            {section === "footer" && <FooterEditor />}
             {section === "submissions" && <ContactSubmissionsViewer />}
           </main>
         </div>
