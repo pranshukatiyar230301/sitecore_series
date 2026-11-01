@@ -148,7 +148,6 @@ const CATEGORY_META: Record<string, CategoryMeta> = {
     tagline: "AI for Marketers",
     description: "Generative AI capabilities woven through the Sitecore product family.",
   },
-  // Legacy slugs preserved
   "sitecore-jss-headless": {
     name: "Sitecore JSS & Headless",
     tagline: "Modern Frontends",
@@ -174,11 +173,13 @@ export default function BlogCategory() {
     (c) => c.slug?.toLowerCase() === categorySlug.toLowerCase()
   );
 
-  // Resolve metadata: Hardcoded dictionary -> Database category -> Fallback slug formatting
-  const meta: CategoryMeta = CATEGORY_META[categorySlug] || {
-    name: matchedDbCategory?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
-    tagline: matchedDbCategory?.tagline || "Sitecore Knowledge",
-    description: matchedDbCategory?.description || `Explore our latest articles and tutorials on ${categorySlug.replace(/-/g, " ")}.`,
+  const hardcodedMeta = CATEGORY_META[categorySlug];
+
+  // Priorities: Database values FIRST, then hardcoded dictionary, then fallback formatting
+  const meta: CategoryMeta = {
+    name: matchedDbCategory?.name || hardcodedMeta?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+    tagline: matchedDbCategory?.tagline || hardcodedMeta?.tagline || "Sitecore Knowledge",
+    description: matchedDbCategory?.description || hardcodedMeta?.description || `Explore our latest articles and tutorials on ${categorySlug.replace(/-/g, " ")}.`,
   };
 
   const { data: posts, isLoading } = usePosts(meta.name);
@@ -192,7 +193,7 @@ export default function BlogCategory() {
     );
   }
 
-  // Robust client-side filter (case-insensitive exact-name match)
+  // Client-side filter
   const categoryPosts = (posts || []).filter(
     (p) => p.category?.toLowerCase() === meta.name.toLowerCase()
   );
