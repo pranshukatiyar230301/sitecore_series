@@ -11,8 +11,7 @@ import {
 import { z } from "zod";
 import { timingSafeEqual, randomBytes } from "crypto";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import axios from "axios";
 import { runSeed } from "./seed";
 import { sendContactEmail } from "./email";
 
@@ -28,18 +27,9 @@ function adminAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-const UPLOAD_DIR = path.resolve(process.cwd(), "uploads");
-if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
-
+// Use memory storage so files are held in RAM temporarily before streaming to ImgBB
 const upload = multer({
-  storage: multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, UPLOAD_DIR),
-    filename: (_req, file, cb) => {
-      const ext = (path.extname(file.originalname) || "").toLowerCase().slice(0, 8);
-      const safeExt = /^\.(jpe?g|png|gif|webp|svg|avif)$/i.test(ext) ? ext : ".bin";
-      cb(null, `${Date.now()}-${randomBytes(6).toString("hex")}${safeExt}`);
-    },
-  }),
+  storage: multer.memoryStorage(),
   limits: { fileSize: 8 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (/^image\//.test(file.mimetype)) cb(null, true);
@@ -48,7 +38,6 @@ const upload = multer({
 });
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
-  app.use("/uploads", express.static(UPLOAD_DIR, { maxAge: "7d", immutable: true }));
   runSeed().catch(console.error);
 
   function isAdminRequest(req: Request) {
@@ -102,13 +91,31 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     res.json({ ok: true });
   });
 
-  // Admin: image upload
-  app.post("/api/admin/upload", adminAuth, (req, res) => {
-    upload.single("file")(req, res, (err: any) => {
-      if (err) return res.status(400).json({ message: err.message || "Upload failed" });
+  // Admin: Cloud Image Upload via ImgBB API
+  app.post("/api/admin/upload", adminAuth, upload.single("file"), async (req: Request, res: Response) => {
+    try {
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-      res.status(201).json({ url: `/uploads/${req.file.filename}` });
-    });
+
+      const apiKey = process.env.IMGBB_API_KEY || "bef465d53a9867ficed9226d09574e498";
+      const base64Image = req.file.buffer.toString("base64");
+
+      const formData = new URLSearchParams();
+      formData.append("key", apiKey);
+      formData.append("image", base64Image);
+
+      const response = await axios.post("https://api.imgbb.com/1/upload", formData, {
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      });
+
+      if (response.data && response.data.success) {
+        return res.status(201).json({ url: response.data.data.url });
+      } else {
+        return res.status(400).json({ message: "Failed to upload image to cloud storage" });
+      }
+    } catch (err: any) {
+      console.error("ImgBB upload error:", err?.response?.data || err.message);
+      return res.status(500).json({ message: "Image upload failed" });
+    }
   });
 
   // ----- Site content (singletons: home / about / contact / footer) -----
