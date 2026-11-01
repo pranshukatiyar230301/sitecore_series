@@ -24,7 +24,7 @@ const DEFAULT_TOPICS: FooterLink[] = [
 
 export function FooterEditor() {
   const { toast } = useToast();
-  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/site-content/footer"] });
+  const { data, isLoading } = useQuery<any>({ queryKey: ["/api/site-content", "footer"] });
 
   const [form, setForm] = useState({
     description: "",
@@ -58,10 +58,10 @@ export function FooterEditor() {
 
   const mutation = useMutation({
     mutationFn: async (updated: typeof form) => {
-      await apiRequest("PUT", "/api/site-content/footer", updated);
+      await apiRequest("PUT", "/api/admin/site-content/footer", updated);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/site-content/footer"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/site-content", "footer"] });
       toast({ title: "Footer content updated successfully!" });
     },
     onError: (e: any) => {
@@ -69,7 +69,6 @@ export function FooterEditor() {
     },
   });
 
-  // Dynamic Link Helpers
   function handleLinkChange(listName: "exploreLinks" | "topicLinks", index: number, field: "label" | "href", val: string) {
     const updated = [...form[listName]];
     updated[index][field] = val;
@@ -105,7 +104,6 @@ export function FooterEditor() {
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(form); }} className="space-y-6">
-        {/* General Info */}
         <Field label="Brand / Bio Description">
           <textarea
             rows={3}
