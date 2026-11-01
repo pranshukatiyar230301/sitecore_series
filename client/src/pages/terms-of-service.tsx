@@ -1,43 +1,79 @@
 // client/src/pages/terms-of-service.tsx
 export function TermsOfServicePage() {
   return (
-    <div className="container mx-auto max-w-4xl px-4 py-12 text-zinc-100">
-      <h1 className="text-3xl font-bold font-display text-red-500 mb-6">Terms of Service</h1>
-      <div className="space-y-6 text-zinc-400 leading-relaxed text-sm">
-        <p className="text-zinc-500 text-xs font-mono">Last updated: October 2026</p>
+    <div className="container mx-auto max-w-4xl px-4 py-14 text-zinc-100">
+      <div className="mb-10 border-b border-zinc-800 pb-6">
+        <span className="bg-red-500/10 border border-red-500/30 text-red-400 px-3 py-1 rounded-md font-semibold text-xs uppercase tracking-wider">
+          Legal Agreement
+        </span>
+        <h1 className="text-3xl md:text-4xl font-extrabold text-white mt-3 tracking-tight">Terms of Service</h1>
+        <p className="text-zinc-400 text-sm mt-2">Last updated and effective as of: October 2026</p>
+      </div>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-white">1. Agreement to Terms</h2>
-          <p>
-            By accessing and using SitecoreSeries (sitecoreseries.com), you acknowledge that you have read, understood, and agreed to be bound by these Terms of Service. If you do not accept these terms in full, you must cease using the website immediately.
+      <div className="space-y-8 text-zinc-300 leading-relaxed text-base">
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">01.</span> Acceptance of Agreement
+          </h2>
+          <p className="text-zinc-400">
+            By accessing, browsing, or utilizing <strong className="text-white">SitecoreSeries</strong> (sitecoreseries.com), you signify your formal agreement to comply with and be bound by these Terms of Service. If you disagree with any portion of these provisions, you must immediately terminate your use of this website.
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-white">2. Intellectual Property & Strict Copyright</h2>
-          <p>
-            All content published on this platform—including but not limited to technical articles, architectural guides, code snippets, graphics, logos, and UI layouts—is the exclusive property of SitecoreSeries and its creator. Unauthorized copying, scraping, republication, redistribution, or commercial use of any material without express written consent constitutes a direct violation of copyright laws and will be legally pursued.
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">02.</span> Strict Copyright & Intellectual Property
+          </h2>
+          <p className="text-zinc-400">
+            Every piece of original content published on SitecoreSeries—including architectural blueprints, tutorial text, code repositories, UI components, graphics, and logos—is the exclusive intellectual property of the site authors and operators. 
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-zinc-400 pl-2">
+            <li>You may view, read, and reference our tutorials for personal or educational development.</li>
+            <li>Commercial redistribution, automated screen scraping, framing, or unauthorized syndication of our articles is strictly prohibited and subject to legal action.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">03.</span> Acceptable User Conduct
+          </h2>
+          <p className="text-zinc-400">
+            When interacting with SitecoreSeries, you agree not to:
+          </p>
+          <ul className="list-disc list-inside space-y-2 text-zinc-400 pl-2">
+            <li>Launch automated bots, denial-of-service scripts, or excessive requests designed to disrupt or overload our hosting server infrastructure.</li>
+            <li>Attempt unauthorized breach, vulnerability scanning, or brute-force access against our administrative API endpoints.</li>
+            <li>Submit fraudulent, abusive, or malicious payloads through our contact forms or newsletter registration boxes.</li>
+          </ul>
+        </section>
+
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">04.</span> Disclaimer of Warranties & Limitation of Liability
+          </h2>
+          <p className="text-zinc-400">
+            All code snippets, technical configurations, architectural guides, and troubleshooting advice published on SitecoreSeries are provided <strong className="text-zinc-200">"as is"</strong> without warranty of any kind, either express or implied. 
+          </p>
+          <p className="text-zinc-400">
+            We assume zero legal liability or responsibility for production errors, server downtime, data loss, or system instability resulting from the direct application of code or strategies outlined on this platform. Developers and engineers are solely responsible for testing code in safe staging environments prior to production deployment.
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-white">3. User Conduct & Prohibited Activities</h2>
-          <p>
-            You agree not to misuse this platform, attempt unauthorized access to administrative controls, overload or disrupt our infrastructure, scrape content via automated bots without permission, or submit malicious data through contact forms or newsletter subscriptions.
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">05.</span> External Links & Third-Party Resources
+          </h2>
+          <p className="text-zinc-400">
+            Our articles may reference third-party software, libraries, documentation links, or external tools. We hold no control over, and assume no liability for, the content, privacy policies, or practices of any third-party websites or services.
           </p>
         </section>
 
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-white">4. Disclaimer of Warranties & Liability</h2>
-          <p>
-            The guides, code examples, and insights provided on SitecoreSeries are for informational and educational purposes only. All content is provided "as is" without any warranties of any kind, express or implied. We assume no legal liability or responsibility for any errors, system downtime, bugs, or technical damages resulting from the implementation of code or advice found on this site.
-          </p>
-        </section>
-
-        <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-white">5. Modifications to Terms</h2>
-          <p>
-            We reserve the right to alter, modify, or update these Terms of Service at any time at our sole discretion. Continued use of the website following any changes signifies your binding acceptance of the revised terms.
+        <section className="space-y-3 bg-[#0a0f1d] p-6 rounded-2xl border border-zinc-800">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span className="text-red-500">06.</span> Modifications to Terms
+          </h2>
+          <p className="text-zinc-400">
+            We retain the right to modify these Terms of Service at our sole discretion at any time. Continued access to or use of sitecoreseries.com following any adjustments indicates your full acceptance of the revised terms.
           </p>
         </section>
       </div>
