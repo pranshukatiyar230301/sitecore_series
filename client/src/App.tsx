@@ -26,8 +26,10 @@ function PrivacyPolicy() {
       <div className="space-y-4 text-zinc-400 leading-relaxed text-sm">
         <p>Last updated: October 2026</p>
         <p>Welcome to SitecoreSeries. We respect your privacy and are committed to protecting your personal data when you visit our platform or subscribe to our insights.</p>
+        
         <h2 className="text-lg font-semibold text-zinc-200 mt-4">1. Information We Collect</h2>
         <p>We may collect email addresses when you voluntarily subscribe to our newsletter or interact with our contact forms.</p>
+        
         <h2 className="text-lg font-semibold text-zinc-200 mt-4">2. How We Use Your Information</h2>
         <p>Your information is used strictly to send newsletters, technical updates, and respond to inquiries.</p>
       </div>
@@ -42,8 +44,10 @@ function TermsOfService() {
       <div className="space-y-4 text-zinc-400 leading-relaxed text-sm">
         <p>Last updated: October 2026</p>
         <p>By accessing and using SitecoreSeries, you agree to comply with and be bound by the following terms and conditions.</p>
+        
         <h2 className="text-lg font-semibold text-zinc-200 mt-4">1. Use License</h2>
         <p>Permission is granted to temporarily read articles, tutorials, and guides for personal, non-commercial use only.</p>
+        
         <h2 className="text-lg font-semibold text-zinc-200 mt-4">2. Disclaimer</h2>
         <p>All materials and code snippets are provided on an 'as is' basis without warranties of any kind.</p>
       </div>
