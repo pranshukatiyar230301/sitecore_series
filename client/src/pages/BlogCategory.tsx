@@ -6,166 +6,12 @@ import { PostCard } from "@/components/PostCard";
 import { ArrowRight, BookOpen, Loader2, Search, Sparkles, X } from "lucide-react";
 import { motion } from "framer-motion";
 
-type CategoryMeta = {
-  name: string;
-  tagline: string;
-  description: string;
-};
-
-const CATEGORY_META: Record<string, CategoryMeta> = {
-  "sitecore-xp": {
-    name: "Sitecore XP",
-    tagline: "Experience Platform",
-    description: "Deep dives into the full Sitecore Experience Platform — personalization, analytics, and the marketing engine that powers it all.",
-  },
-  "sitecore-xm": {
-    name: "Sitecore XM",
-    tagline: "Experience Manager",
-    description: "Master content management with Sitecore XM. Templates, layouts, renderings, and the fundamentals of editor experience.",
-  },
-  "sitecore-xdb": {
-    name: "Sitecore xDB",
-    tagline: "Experience Database",
-    description: "Understand the data layer behind Sitecore experiences. MongoDB, SQL collections, and contact tracking patterns.",
-  },
-  "sitecore-xconnect": {
-    name: "Sitecore xConnect",
-    tagline: "Customer Data Service",
-    description: "Connect interactions, contacts, and devices through the xConnect API. Custom facets, models, and integrations.",
-  },
-  "sitecore-analytics": {
-    name: "Sitecore Analytics",
-    tagline: "Insight & Engagement",
-    description: "Turn visitor behavior into actionable insight. Engagement value, goals, and reporting across the Sitecore stack.",
-  },
-  "sitecore-marketing-automation": {
-    name: "Sitecore Marketing Automation",
-    tagline: "Customer Journeys",
-    description: "Design automated campaigns and nurture journeys that respond to real-time visitor behavior.",
-  },
-  "sitecore-exm": {
-    name: "Sitecore EXM",
-    tagline: "Email Experience Manager",
-    description: "Send personalized, data-driven email campaigns at scale using the Email Experience Manager.",
-  },
-  "sitecore-forms": {
-    name: "Sitecore Forms",
-    tagline: "Lead Capture & Submission",
-    description: "Build powerful forms with custom field types, multi-step flows, and seamless backend integrations.",
-  },
-  "sitecore-path-analyzer": {
-    name: "Sitecore Path Analyzer",
-    tagline: "Visitor Journey Insight",
-    description: "Visualize how visitors flow through your site and uncover the paths that lead to conversion.",
-  },
-  "sitecore-identity-server": {
-    name: "Sitecore Identity Server",
-    tagline: "Authentication & SSO",
-    description: "Configure Identity Server, federated auth, and single sign-on across the Sitecore ecosystem.",
-  },
-  "sitecore-horizon": {
-    name: "Sitecore Horizon",
-    tagline: "Next-Gen Editor",
-    description: "Explore Horizon, the modern editing experience built for content authors and marketers.",
-  },
-  "sitecore-commerce-xc": {
-    name: "Sitecore Commerce (XC)",
-    tagline: "Experience Commerce",
-    description: "Build connected commerce experiences with the Sitecore Experience Commerce platform.",
-  },
-  "sitecore-sxa": {
-    name: "Sitecore SXA",
-    tagline: "Experience Accelerator",
-    description: "Accelerate your time to market with SXA. Component patterns, theming, and rendering variants done right.",
-  },
-  "sitecore-spe": {
-    name: "Sitecore PowerShell Extensions",
-    tagline: "Automation Toolkit",
-    description: "Automate everyday Sitecore tasks with SPE — content audits, deployments, and bulk operations.",
-  },
-  "sitecore-xm-cloud": {
-    name: "Sitecore XM Cloud",
-    tagline: "SaaS Content Platform",
-    description: "The future of Sitecore CMS — fully SaaS, headless, and built for modern composable architectures.",
-  },
-  "sitecore-experience-edge": {
-    name: "Sitecore Experience Edge",
-    tagline: "Global Content Delivery",
-    description: "Deliver content blazingly fast through the global Experience Edge network and GraphQL APIs.",
-  },
-  "sitecore-headless-services": {
-    name: "Sitecore Headless Services",
-    tagline: "Decoupled Delivery",
-    description: "Power decoupled and hybrid frontends using Sitecore Headless Services and the Layout Service.",
-  },
-  "sitecore-jss": {
-    name: "Sitecore JSS",
-    tagline: "JavaScript Services",
-    description: "Build modern frontends with Next.js, React, Vue, or Angular on top of Sitecore. Headless architecture patterns.",
-  },
-  "sitecore-ordercloud": {
-    name: "Sitecore OrderCloud",
-    tagline: "Headless Commerce",
-    description: "API-first B2B, B2C, and B2X commerce powered by OrderCloud. Catalogs, orders, and integrations.",
-  },
-  "sitecore-content-hub": {
-    name: "Sitecore Content Hub",
-    tagline: "Content Operations",
-    description: "Manage your content lifecycle efficiently. Tutorials on CMP, DAM, PCM, and integration strategies.",
-  },
-  "sitecore-cdp": {
-    name: "Sitecore CDP",
-    tagline: "Customer Data Platform",
-    description: "Unify customer data across channels and unlock real-time decisioning with Sitecore CDP.",
-  },
-  "sitecore-personalize": {
-    name: "Sitecore Personalize",
-    tagline: "Real-Time Personalization",
-    description: "Deliver 1-to-1 personalized experiences across web, app, and email with Sitecore Personalize.",
-  },
-  "sitecore-discover": {
-    name: "Sitecore Discover",
-    tagline: "AI Product Discovery",
-    description: "AI-powered product discovery and merchandising for ecommerce experiences.",
-  },
-  "sitecore-search": {
-    name: "Sitecore Search",
-    tagline: "Intelligent Site Search",
-    description: "Deliver predictive, AI-driven site search experiences with Sitecore Search.",
-  },
-  "sitecore-send": {
-    name: "Sitecore Send",
-    tagline: "Email Marketing",
-    description: "Modern, easy-to-use email marketing built for the composable Sitecore stack.",
-  },
-  "sitecore-connect": {
-    name: "Sitecore Connect",
-    tagline: "Integration Platform",
-    description: "Connect Sitecore products to anything — iPaaS-style integrations and recipes.",
-  },
-  "sitecore-stream": {
-    name: "Sitecore Stream",
-    tagline: "AI for Marketers",
-    description: "Generative AI capabilities woven through the Sitecore product family.",
-  },
-  "sitecore-jss-headless": {
-    name: "Sitecore JSS & Headless",
-    tagline: "Modern Frontends",
-    description: "Build modern frontends with React, Vue, or Angular on top of Sitecore. Headless architecture patterns.",
-  },
-  "sitecore-xm-xp": {
-    name: "Sitecore XM / XP",
-    tagline: "Classic Platform",
-    description: "Classic Sitecore development. MVC, pipelines, events, and core platform customization.",
-  },
-};
-
 export default function BlogCategory() {
   const [, params] = useRoute("/blogs/:category");
   const categorySlug = params?.category || "";
 
-  // Fetch dynamic categories from database
-  const { data: dbCategories = [] } = useQuery<any[]>({
+  // Fetch categories directly from the database via API
+  const { data: dbCategories = [], isLoading: categoriesLoading } = useQuery<any[]>({
     queryKey: ["/api/categories"],
   });
 
@@ -173,19 +19,17 @@ export default function BlogCategory() {
     (c) => c.slug?.toLowerCase() === categorySlug.toLowerCase()
   );
 
-  const hardcodedMeta = CATEGORY_META[categorySlug];
-
-  // Priorities: Database values FIRST, then hardcoded dictionary, then fallback formatting
-  const meta: CategoryMeta = {
-    name: matchedDbCategory?.name || hardcodedMeta?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
-    tagline: matchedDbCategory?.tagline || hardcodedMeta?.tagline || "Sitecore Knowledge",
-    description: matchedDbCategory?.description || hardcodedMeta?.description || `Explore our latest articles and tutorials on ${categorySlug.replace(/-/g, " ")}.`,
+  // Database-driven metadata with clean dynamic fallbacks
+  const meta = {
+    name: matchedDbCategory?.name || categorySlug.replace(/-/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+    tagline: matchedDbCategory?.tagline || "Sitecore Knowledge",
+    description: matchedDbCategory?.description || `Explore our latest articles and tutorials on ${categorySlug.replace(/-/g, " ")}.`,
   };
 
-  const { data: posts, isLoading } = usePosts(meta.name);
+  const { data: posts, isLoading: postsLoading } = usePosts(meta.name);
   const [searchQuery, setSearchQuery] = useState("");
 
-  if (isLoading) {
+  if (categoriesLoading || postsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />

@@ -8,39 +8,6 @@ import type { Event, Podcast, Category } from "@shared/schema";
 import { Field, TextInput, TextArea, ImageField } from "./AdminShared";
 import { slugify } from "@/lib/categories";
 
-// Predefined default metadata map for fallback auto-filling
-const DEFAULT_CATEGORY_META: Record<string, { tagline: string; description: string }> = {
-  "sitecore-xp": { tagline: "Experience Platform", description: "Deep dives into the full Sitecore Experience Platform — personalization, analytics, and the marketing engine that powers it all." },
-  "sitecore-xm": { tagline: "Experience Manager", description: "Master content management with Sitecore XM. Templates, layouts, renderings, and the fundamentals of editor experience." },
-  "sitecore-xdb": { tagline: "Experience Database", description: "Understand the data layer behind Sitecore experiences. MongoDB, SQL collections, and contact tracking patterns." },
-  "sitecore-xconnect": { tagline: "Customer Data Service", description: "Connect interactions, contacts, and devices through the xConnect API. Custom facets, models, and integrations." },
-  "sitecore-analytics": { tagline: "Insight & Engagement", description: "Turn visitor behavior into actionable insight. Engagement value, goals, and reporting across the Sitecore stack." },
-  "sitecore-marketing-automation": { tagline: "Customer Journeys", description: "Design automated campaigns and nurture journeys that respond to real-time visitor behavior." },
-  "sitecore-exm": { tagline: "Email Experience Manager", description: "Send personalized, data-driven email campaigns at scale using the Email Experience Manager." },
-  "sitecore-forms": { tagline: "Lead Capture & Submission", description: "Build powerful forms with custom field types, multi-step flows, and seamless backend integrations." },
-  "sitecore-path-analyzer": { tagline: "Visitor Journey Insight", description: "Visualize how visitors flow through your site and uncover the paths that lead to conversion." },
-  "sitecore-identity-server": { tagline: "Authentication & SSO", description: "Configure Identity Server, federated auth, and single sign-on across the Sitecore ecosystem." },
-  "sitecore-horizon": { tagline: "Next-Gen Editor", description: "Explore Horizon, the modern editing experience built for content authors and marketers." },
-  "sitecore-commerce-xc": { tagline: "Experience Commerce", description: "Build connected commerce experiences with the Sitecore Experience Commerce platform." },
-  "sitecore-sxa": { tagline: "Experience Accelerator", description: "Accelerate your time to market with SXA. Component patterns, theming, and rendering variants done right." },
-  "sitecore-spe": { tagline: "Automation Toolkit", description: "Automate everyday Sitecore tasks with SPE — content audits, deployments, and bulk operations." },
-  "sitecore-xm-cloud": { tagline: "SaaS Content Platform", description: "The future of Sitecore CMS — fully SaaS, headless, and built for modern composable architectures." },
-  "sitecore-experience-edge": { tagline: "Global Content Delivery", description: "Deliver content blazingly fast through the global Experience Edge network and GraphQL APIs." },
-  "sitecore-headless-services": { tagline: "Decoupled Delivery", description: "Power decoupled and hybrid frontends using Sitecore Headless Services and the Layout Service." },
-  "sitecore-jss": { tagline: "JavaScript Services", description: "Build modern frontends with Next.js, React, Vue, or Angular on top of Sitecore. Headless architecture patterns." },
-  "sitecore-ordercloud": { tagline: "Headless Commerce", description: "API-first B2B, B2C, and B2X commerce powered by OrderCloud. Catalogs, orders, and integrations." },
-  "sitecore-content-hub": { tagline: "Content Operations", description: "Manage your content lifecycle efficiently. Tutorials on CMP, DAM, PCM, and integration strategies." },
-  "sitecore-cdp": { tagline: "Customer Data Platform", description: "Unify customer data across channels and unlock real-time decisioning with Sitecore CDP." },
-  "sitecore-personalize": { tagline: "Real-Time Personalization", description: "Deliver 1-to-1 personalized experiences across web, app, and email with Sitecore Personalize." },
-  "sitecore-discover": { tagline: "AI Product Discovery", description: "AI-powered product discovery and merchandising for ecommerce experiences." },
-  "sitecore-search": { tagline: "Intelligent Site Search", description: "Deliver predictive, AI-driven site search experiences with Sitecore Search." },
-  "sitecore-send": { tagline: "Email Marketing", description: "Modern, easy-to-use email marketing built for the composable Sitecore stack." },
-  "sitecore-connect": { tagline: "Integration Platform", description: "Connect Sitecore products to anything — iPaaS-style integrations and recipes." },
-  "sitecore-stream": { tagline: "AI for Marketers", description: "Generative AI capabilities woven through the Sitecore product family." },
-  "sitecore-jss-headless": { tagline: "Modern Frontends", description: "Build modern frontends with React, Vue, or Angular on top of Sitecore. Headless architecture patterns." },
-  "sitecore-xm-xp": { tagline: "Classic Platform", description: "Classic Sitecore development. MVC, pipelines, events, and core platform customization." },
-};
-
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4" onClick={onClose}>
@@ -318,9 +285,6 @@ export function CategoriesManager() {
 function CategoryForm({ initial, onClose }: { initial: Category | null; onClose: () => void }) {
   const { toast } = useToast();
   const isEdit = !!initial;
-  
-  const currentSlug = initial?.slug || "";
-  const defaultMeta = DEFAULT_CATEGORY_META[currentSlug] || { tagline: "", description: "" };
   const initialAny = initial as any;
 
   const [form, setForm] = useState({
@@ -328,8 +292,8 @@ function CategoryForm({ initial, onClose }: { initial: Category | null; onClose:
     slug: initial?.slug ?? "",
     group: initial?.group ?? "Core",
     sortOrder: initial?.sortOrder ?? 99,
-    tagline: initialAny?.tagline || defaultMeta.tagline,
-    description: initialAny?.description || defaultMeta.description,
+    tagline: initialAny?.tagline ?? "",
+    description: initialAny?.description ?? "",
   });
 
   const save = useMutation({
