@@ -17,6 +17,8 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
               <img
                 src={post.coverImage || '/default-thumbnail.png'}
                 alt={post.title}
+                loading="eager"
+                decoding="async"
                 onError={(e) => {
                   e.currentTarget.src = '/default-thumbnail.png';
                 }}
@@ -81,6 +83,8 @@ export function PostCard({ post, featured = false }: { post: Post; featured?: bo
             <img
               src={post.coverImage || '/default-thumbnail.png'}
               alt={post.title}
+              loading="lazy"
+              decoding="async"
               onError={(e) => {
                 e.currentTarget.src = '/default-thumbnail.png';
               }}
