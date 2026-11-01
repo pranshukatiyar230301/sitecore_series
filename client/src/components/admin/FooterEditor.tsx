@@ -3,8 +3,24 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Loader2, Save, LayoutTemplate } from "lucide-react";
+import { Loader2, Save, LayoutTemplate, Plus, Trash2 } from "lucide-react";
 import { Field } from "@/components/admin/AdminShared";
+
+type FooterLink = { label: string; href: string };
+
+const DEFAULT_EXPLORE: FooterLink[] = [
+  { label: "About Us", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+];
+
+const DEFAULT_TOPICS: FooterLink[] = [
+  { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
+  { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
+  { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
+  { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
+];
 
 export function FooterEditor() {
   const { toast } = useToast();
@@ -19,19 +35,23 @@ export function FooterEditor() {
     facebook: "",
     instagram: "",
     youtube: "",
+    exploreLinks: DEFAULT_EXPLORE,
+    topicLinks: DEFAULT_TOPICS,
   });
 
   useEffect(() => {
     if (data) {
       setForm({
-        description: data.description || "",
-        badgeText: data.badgeText || "",
-        email: data.email || "",
-        twitter: data.twitter || "",
-        linkedin: data.linkedin || "",
-        facebook: data.facebook || "",
-        instagram: data.instagram || "",
-        youtube: data.youtube || "",
+        description: data.description ?? "Sharing knowledge, architecture guides, and tutorials for the Sitecore ecosystem. Mastering modern digital experience platforms one post at a time.",
+        badgeText: data.badgeText ?? "Community-Led Platform",
+        email: data.email ?? "pranshukatiyar230301@gmail.com",
+        twitter: data.twitter ?? "https://twitter.com/sitecoreseries",
+        linkedin: data.linkedin ?? "https://linkedin.com/in/er-pranshu-katiyar-a77aa8197",
+        facebook: data.facebook ?? "https://facebook.com",
+        instagram: data.instagram ?? "https://instagram.com",
+        youtube: data.youtube ?? "https://youtube.com",
+        exploreLinks: data.exploreLinks && data.exploreLinks.length > 0 ? data.exploreLinks : DEFAULT_EXPLORE,
+        topicLinks: data.topicLinks && data.topicLinks.length > 0 ? data.topicLinks : DEFAULT_TOPICS,
       });
     }
   }, [data]);
@@ -49,6 +69,25 @@ export function FooterEditor() {
     },
   });
 
+  // Dynamic Link Helpers
+  function handleLinkChange(listName: "exploreLinks" | "topicLinks", index: number, field: "label" | "href", val: string) {
+    const updated = [...form[listName]];
+    updated[index][field] = val;
+    setForm({ ...form, [listName]: updated });
+  }
+
+  function addLink(listName: "exploreLinks" | "topicLinks") {
+    setForm({
+      ...form,
+      [listName]: [...form[listName], { label: "", href: "" }],
+    });
+  }
+
+  function removeLink(listName: "exploreLinks" | "topicLinks", index: number) {
+    const updated = form[listName].filter((_, i) => i !== index);
+    setForm({ ...form, [listName]: updated });
+  }
+
   if (isLoading) {
     return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
@@ -61,11 +100,12 @@ export function FooterEditor() {
         </div>
         <div>
           <h2 className="text-lg font-display font-bold text-foreground">Footer Customizer</h2>
-          <p className="text-xs text-muted-foreground">Manage brand description, email, and social media links displayed in the footer.</p>
+          <p className="text-xs text-muted-foreground">Manage brand description, navigation links, email, and social media URLs.</p>
         </div>
       </div>
 
       <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(form); }} className="space-y-6">
+        {/* General Info */}
         <Field label="Brand / Bio Description">
           <textarea
             rows={3}
@@ -98,6 +138,73 @@ export function FooterEditor() {
           </Field>
         </div>
 
+        {/* Dynamic Explore Links Section */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Explore Links</h3>
+            <Button type="button" size="sm" variant="outline" onClick={() => addLink("exploreLinks")} className="rounded-full text-xs">
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Explore Link
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {form.exploreLinks.map((link, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Link Label (e.g. About Us)"
+                  value={link.label}
+                  onChange={(e) => handleLinkChange("exploreLinks", idx, "label", e.target.value)}
+                  className="input-base flex-1"
+                />
+                <input
+                  type="text"
+                  placeholder="URL Path (e.g. /about)"
+                  value={link.href}
+                  onChange={(e) => handleLinkChange("exploreLinks", idx, "href", e.target.value)}
+                  className="input-base flex-1"
+                />
+                <Button type="button" size="sm" variant="outline" onClick={() => removeLink("exploreLinks", idx)} className="text-destructive hover:bg-destructive/10 rounded-xl">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Dynamic Topics Links Section */}
+        <div className="pt-4 border-t border-border space-y-3">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Topics Links</h3>
+            <Button type="button" size="sm" variant="outline" onClick={() => addLink("topicLinks")} className="rounded-full text-xs">
+              <Plus className="h-3.5 w-3.5 mr-1" /> Add Topic Link
+            </Button>
+          </div>
+          <div className="space-y-2">
+            {form.topicLinks.map((link, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="Topic Label (e.g. Content Hub)"
+                  value={link.label}
+                  onChange={(e) => handleLinkChange("topicLinks", idx, "label", e.target.value)}
+                  className="input-base flex-1"
+                />
+                <input
+                  type="text"
+                  placeholder="URL Path (e.g. /blogs/sitecore-content-hub)"
+                  value={link.href}
+                  onChange={(e) => handleLinkChange("topicLinks", idx, "href", e.target.value)}
+                  className="input-base flex-1"
+                />
+                <Button type="button" size="sm" variant="outline" onClick={() => removeLink("topicLinks", idx)} className="text-destructive hover:bg-destructive/10 rounded-xl">
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Social Links */}
         <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground pt-4 border-t border-border">Social Media Links</h3>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

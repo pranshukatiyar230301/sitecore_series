@@ -3,10 +3,23 @@ import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Twitter, Linkedin, Mail, Copy, Check, ArrowUpRight, Flame, Facebook, Instagram, Youtube } from "lucide-react";
 
+const DEFAULT_EXPLORE = [
+  { label: "About Us", href: "/about" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy Policy", href: "/privacy" },
+  { label: "Terms of Service", href: "/terms" },
+];
+
+const DEFAULT_TOPICS = [
+  { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
+  { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
+  { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
+  { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
+];
+
 export function Footer() {
   const [copied, setCopied] = useState(false);
 
-  // Fetch footer content from your site content API
   const { data: footerData } = useQuery<any>({
     queryKey: ["/api/site-content/footer"],
     staleTime: 1000 * 60 * 5,
@@ -16,19 +29,8 @@ export function Footer() {
   const description = footerData?.description || "Sharing knowledge, architecture guides, and tutorials for the Sitecore ecosystem. Mastering modern digital experience platforms one post at a time.";
   const badgeText = footerData?.badgeText || "Community-Led Platform";
   
-  const exploreLinks = footerData?.exploreLinks || [
-    { label: "About Us", href: "/about" },
-    { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
-  ];
-
-  const topicLinks = footerData?.topicLinks || [
-    { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
-    { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
-    { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
-    { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
-  ];
+  const exploreLinks = footerData?.exploreLinks && footerData.exploreLinks.length > 0 ? footerData.exploreLinks : DEFAULT_EXPLORE;
+  const topicLinks = footerData?.topicLinks && footerData.topicLinks.length > 0 ? footerData.topicLinks : DEFAULT_TOPICS;
 
   const socials = [
     { icon: Twitter, href: footerData?.twitter || "https://twitter.com/sitecoreseries", label: "Twitter" },
@@ -83,8 +85,8 @@ export function Footer() {
               Explore
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {exploreLinks.map((item: any) => (
-                <li key={item.href}>
+              {exploreLinks.map((item: any, idx: number) => (
+                <li key={idx}>
                   <Link href={item.href}>
                     <span className="text-zinc-400 hover:text-red-400 transition-colors duration-200 cursor-pointer inline-flex items-center gap-1 group">
                       {item.label}
@@ -102,8 +104,8 @@ export function Footer() {
               Topics
             </h3>
             <ul className="space-y-2.5 text-sm">
-              {topicLinks.map((item: any) => (
-                <li key={item.href}>
+              {topicLinks.map((item: any, idx: number) => (
+                <li key={idx}>
                   <Link href={item.href}>
                     <span className="text-zinc-400 hover:text-red-400 transition-colors duration-200 cursor-pointer">
                       {item.label}
