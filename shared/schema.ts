@@ -65,6 +65,8 @@ export const categories = pgTable("categories", {
   slug: text("slug").notNull().unique(),
   group: text("group").notNull().default("Core"),
   sortOrder: integer("sort_order").notNull().default(0),
+  tagline: text("tagline"),
+  description: text("description"),
 });
 
 export const insertPostSchema = createInsertSchema(posts).omit({ id: true, createdAt: true });
