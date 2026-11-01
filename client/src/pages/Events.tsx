@@ -47,8 +47,11 @@ export default function Events() {
                     {e.image && (
                       <div className="overflow-hidden bg-muted aspect-[16/9] relative">
                         <img
-                          src={e.image}
+                          src={e.image || '/default-thumbnail.png'}
                           alt={e.title}
+                          onError={(event) => {
+                            event.currentTarget.src = '/default-thumbnail.png';
+                          }}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       </div>
@@ -74,7 +77,8 @@ export default function Events() {
                         )}
                       </div>
 
-                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed break-words mb-4">
+                      {/* Added whitespace-pre-line to preserve your line breaks and bullet spacing */}
+                      <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed break-words mb-4 whitespace-pre-line">
                         {e.description}
                       </p>
                     </div>
