@@ -8,6 +8,39 @@ import type { Event, Podcast, Category } from "@shared/schema";
 import { Field, TextInput, TextArea, ImageField } from "./AdminShared";
 import { slugify } from "@/lib/categories";
 
+// Predefined default metadata map for fallback auto-filling
+const DEFAULT_CATEGORY_META: Record<string, { tagline: string; description: string }> = {
+  "sitecore-xp": { tagline: "Experience Platform", description: "Deep dives into the full Sitecore Experience Platform — personalization, analytics, and the marketing engine that powers it all." },
+  "sitecore-xm": { tagline: "Experience Manager", description: "Master content management with Sitecore XM. Templates, layouts, renderings, and the fundamentals of editor experience." },
+  "sitecore-xdb": { tagline: "Experience Database", description: "Understand the data layer behind Sitecore experiences. MongoDB, SQL collections, and contact tracking patterns." },
+  "sitecore-xconnect": { tagline: "Customer Data Service", description: "Connect interactions, contacts, and devices through the xConnect API. Custom facets, models, and integrations." },
+  "sitecore-analytics": { tagline: "Insight & Engagement", description: "Turn visitor behavior into actionable insight. Engagement value, goals, and reporting across the Sitecore stack." },
+  "sitecore-marketing-automation": { tagline: "Customer Journeys", description: "Design automated campaigns and nurture journeys that respond to real-time visitor behavior." },
+  "sitecore-exm": { tagline: "Email Experience Manager", description: "Send personalized, data-driven email campaigns at scale using the Email Experience Manager." },
+  "sitecore-forms": { tagline: "Lead Capture & Submission", description: "Build powerful forms with custom field types, multi-step flows, and seamless backend integrations." },
+  "sitecore-path-analyzer": { tagline: "Visitor Journey Insight", description: "Visualize how visitors flow through your site and uncover the paths that lead to conversion." },
+  "sitecore-identity-server": { tagline: "Authentication & SSO", description: "Configure Identity Server, federated auth, and single sign-on across the Sitecore ecosystem." },
+  "sitecore-horizon": { tagline: "Next-Gen Editor", description: "Explore Horizon, the modern editing experience built for content authors and marketers." },
+  "sitecore-commerce-xc": { tagline: "Experience Commerce", description: "Build connected commerce experiences with the Sitecore Experience Commerce platform." },
+  "sitecore-sxa": { tagline: "Experience Accelerator", description: "Accelerate your time to market with SXA. Component patterns, theming, and rendering variants done right." },
+  "sitecore-spe": { tagline: "Automation Toolkit", description: "Automate everyday Sitecore tasks with SPE — content audits, deployments, and bulk operations." },
+  "sitecore-xm-cloud": { tagline: "SaaS Content Platform", description: "The future of Sitecore CMS — fully SaaS, headless, and built for modern composable architectures." },
+  "sitecore-experience-edge": { tagline: "Global Content Delivery", description: "Deliver content blazingly fast through the global Experience Edge network and GraphQL APIs." },
+  "sitecore-headless-services": { tagline: "Decoupled Delivery", description: "Power decoupled and hybrid frontends using Sitecore Headless Services and the Layout Service." },
+  "sitecore-jss": { tagline: "JavaScript Services", description: "Build modern frontends with Next.js, React, Vue, or Angular on top of Sitecore. Headless architecture patterns." },
+  "sitecore-ordercloud": { tagline: "Headless Commerce", description: "API-first B2B, B2C, and B2X commerce powered by OrderCloud. Catalogs, orders, and integrations." },
+  "sitecore-content-hub": { tagline: "Content Operations", description: "Manage your content lifecycle efficiently. Tutorials on CMP, DAM, PCM, and integration strategies." },
+  "sitecore-cdp": { tagline: "Customer Data Platform", description: "Unify customer data across channels and unlock real-time decisioning with Sitecore CDP." },
+  "sitecore-personalize": { tagline: "Real-Time Personalization", description: "Deliver 1-to-1 personalized experiences across web, app, and email with Sitecore Personalize." },
+  "sitecore-discover": { tagline: "AI Product Discovery", description: "AI-powered product discovery and merchandising for ecommerce experiences." },
+  "sitecore-search": { tagline: "Intelligent Site Search", description: "Deliver predictive, AI-driven site search experiences with Sitecore Search." },
+  "sitecore-send": { tagline: "Email Marketing", description: "Modern, easy-to-use email marketing built for the composable Sitecore stack." },
+  "sitecore-connect": { tagline: "Integration Platform", description: "Connect Sitecore products to anything — iPaaS-style integrations and recipes." },
+  "sitecore-stream": { tagline: "AI for Marketers", description: "Generative AI capabilities woven through the Sitecore product family." },
+  "sitecore-jss-headless": { tagline: "Modern Frontends", description: "Build modern frontends with React, Vue, or Angular on top of Sitecore. Headless architecture patterns." },
+  "sitecore-xm-xp": { tagline: "Classic Platform", description: "Classic Sitecore development. MVC, pipelines, events, and core platform customization." },
+};
+
 function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-start sm:items-center justify-center p-2 sm:p-4" onClick={onClose}>
@@ -259,9 +292,12 @@ export function CategoriesManager() {
             </tr>
           </thead>
           <tbody>
-            {(items || []).map((c) => (
+            {(items || []).map((c: any) => (
               <tr key={c.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-                <td className="px-6 py-4 font-medium">{c.name}</td>
+                <td className="px-6 py-4 font-medium">
+                  <div>{c.name}</div>
+                  {c.tagline && <div className="text-xs text-primary font-normal">{c.tagline}</div>}
+                </td>
                 <td className="px-6 py-4 text-sm font-mono text-muted-foreground">{c.slug}</td>
                 <td className="px-6 py-4"><span className="text-xs px-2.5 py-1 rounded-full bg-primary/10 text-primary font-medium">{c.group}</span></td>
                 <td className="px-6 py-4 text-right">
@@ -282,21 +318,35 @@ export function CategoriesManager() {
 function CategoryForm({ initial, onClose }: { initial: Category | null; onClose: () => void }) {
   const { toast } = useToast();
   const isEdit = !!initial;
+  
+  const currentSlug = initial?.slug || "";
+  const defaultMeta = DEFAULT_CATEGORY_META[currentSlug] || { tagline: "", description: "" };
+  const initialAny = initial as any;
+
   const [form, setForm] = useState({
     name: initial?.name ?? "",
     slug: initial?.slug ?? "",
     group: initial?.group ?? "Core",
     sortOrder: initial?.sortOrder ?? 99,
+    tagline: initialAny?.tagline || defaultMeta.tagline,
+    description: initialAny?.description || defaultMeta.description,
   });
+
   const save = useMutation({
     mutationFn: async () => {
-      const payload = { ...form, slug: form.slug || slugify(form.name) };
+      const payload = { 
+        ...form, 
+        slug: form.slug || slugify(form.name),
+        tagline: form.tagline || null,
+        description: form.description || null,
+      };
       if (isEdit) await apiRequest("PATCH", `/api/admin/categories/${initial!.id}`, payload);
       else await apiRequest("POST", "/api/admin/categories", payload);
     },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/categories"] }); toast({ title: isEdit ? "Category updated" : "Category created" }); onClose(); },
     onError: (e: any) => toast({ title: "Save failed", description: e?.message, variant: "destructive" }),
   });
+
   return (
     <Modal title={isEdit ? "Edit Category" : "New Category"} onClose={onClose}>
       <Field label="Name" required><TextInput value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required /></Field>
@@ -307,6 +357,8 @@ function CategoryForm({ initial, onClose }: { initial: Category | null; onClose:
           <option value="Composable">Composable (SaaS / Headless / Modular)</option>
         </select>
       </Field>
+      <Field label="Tagline" hint="Short subtitle shown on category hero banner"><TextInput value={form.tagline} onChange={(e) => setForm({ ...form, tagline: e.target.value })} placeholder="e.g. SaaS Content Platform" /></Field>
+      <Field label="Description" hint="Detailed description shown on category hero banner"><TextArea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Explain what this category covers..." /></Field>
       <Field label="Sort order" hint="Lower = appears first"><TextInput type="number" value={String(form.sortOrder)} onChange={(e) => setForm({ ...form, sortOrder: parseInt(e.target.value || "0", 10) })} /></Field>
       <div className="flex gap-2 justify-end pt-3 border-t border-border sticky bottom-0 bg-background">
         <Button variant="outline" onClick={onClose} className="rounded-full">Cancel</Button>
