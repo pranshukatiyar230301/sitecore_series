@@ -100,10 +100,21 @@ export class DatabaseStorage implements IStorage {
   }
 
   async listEvents(opts?: { includeUnpublished?: boolean }) {
-    const q = db.select().from(events).orderBy(desc(events.startDate));
-    if (opts?.includeUnpublished) return await q;
-    return await q.where(eq(events.published, true));
+    const allEvents = await db.select().from(events);
+    
+    const fiveDaysInMs = 5 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    return allEvents
+      .filter((event) => {
+        if (!opts?.includeUnpublished && !event.published) return false;
+        const eventTime = new Date(event.startDate).getTime();
+        // Keep events if they haven't passed or passed by less than 5 days
+        return eventTime >= now - fiveDaysInMs;
+      })
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
   }
+
   async createEvent(e: InsertEvent) { const [r] = await db.insert(events).values(e).returning(); return r; }
   async updateEvent(id: number, e: Partial<InsertEvent>) {
     const [r] = await db.update(events).set({ ...e, createdAt: new Date() }).where(eq(events.id, id)).returning();
