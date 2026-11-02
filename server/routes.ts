@@ -14,6 +14,8 @@ import multer from "multer";
 import axios from "axios";
 import { runSeed } from "./seed";
 import { sendContactEmail } from "./email";
+import { SitemapStream, streamToPromise } from "sitemap";
+import { Readable } from "stream";
 
 function adminAuth(req: Request, res: Response, next: NextFunction) {
   const expected = process.env.ADMIN_PASSWORD || "";
@@ -46,6 +48,67 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
     if (!expected || provided.length !== expected.length) return false;
     try { return timingSafeEqual(Buffer.from(provided), Buffer.from(expected)); } catch { return false; }
   }
+
+  // SEO: Dynamic XML Sitemap Endpoint
+  app.get("/sitemap.xml", async (_req, res) => {
+    try {
+      res.header("Content-Type", "application/xml");
+      res.header("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+
+      const smStream = new SitemapStream({ hostname: "https://sitecoreseries.com" });
+
+      const staticPages = [
+        { url: "/", changefreq: "daily", priority: 1.0 },
+        { url: "/about", changefreq: "monthly", priority: 0.8 },
+        { url: "/contact", changefreq: "monthly", priority: 0.7 },
+        { url: "/podcasts", changefreq: "weekly", priority: 0.8 },
+        { url: "/events", changefreq: "weekly", priority: 0.8 },
+        { url: "/privacy-policy", changefreq: "yearly", priority: 0.3 },
+        { url: "/terms-of-service", changefreq: "yearly", priority: 0.3 },
+      ];
+
+      staticPages.forEach((page) => smStream.write(page));
+
+      // Fetch blog posts dynamically
+      const allPosts = await storage.getPosts(undefined, { includeUnpublished: false });
+      allPosts.forEach((post) => {
+        smStream.write({
+          url: `/post/${post.slug}`,
+          changefreq: "weekly",
+          priority: 0.9,
+          lastmod: post.createdAt ? new Date(post.createdAt).toISOString() : undefined,
+        });
+      });
+
+      // Fetch categories dynamically
+      const categories = await storage.listCategories();
+      categories.forEach((cat) => {
+        smStream.write({
+          url: `/blogs/${cat.slug}`,
+          changefreq: "weekly",
+          priority: 0.8,
+        });
+      });
+
+      smStream.end();
+      const xml = await streamToPromise(Readable.from(smStream)).then((data) => data.toString());
+      res.send(xml);
+    } catch (e) {
+      console.error("Sitemap generation error:", e);
+      res.status(500).end();
+    }
+  });
+
+  // SEO: Dynamic Robots.txt Endpoint
+  app.get("/robots.txt", (_req, res) => {
+    res.type("text/plain");
+    res.send(`User-agent: *
+Allow: /
+Disallow: /api/admin/
+
+Sitemap: https://sitecoreseries.com/sitemap.xml
+`);
+  });
 
   // Posts
   app.get(api.posts.list.path, async (req, res) => {
