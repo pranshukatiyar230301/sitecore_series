@@ -5,6 +5,22 @@ import type { Podcast } from "@shared/schema";
 export default function Podcasts() {
   const { data: items, isLoading } = useQuery<Podcast[]>({ queryKey: ["/api/podcasts"] });
 
+  const now = new Date();
+  const fiveDaysInMs = 5 * 24 * 60 * 60 * 1000;
+
+  // Filter out episodes older than 5 days and sort by nearest/latest episode date first
+  const processedItems = items
+    ?.filter((p) => {
+      if (!p.episodeDate) return true;
+      const episodeTime = new Date(p.episodeDate).getTime();
+      return isNaN(episodeTime) || episodeTime >= now.getTime() - fiveDaysInMs;
+    })
+    ?.sort((a, b) => {
+      const dateA = a.episodeDate ? new Date(a.episodeDate).getTime() : 0;
+      const dateB = b.episodeDate ? new Date(b.episodeDate).getTime() : 0;
+      return dateB - dateA; // Latest/newest first
+    });
+
   return (
     <div className="min-h-screen pt-6 sm:pt-12 pb-16 sm:pb-24">
       {/* Header Banner */}
@@ -25,7 +41,7 @@ export default function Podcasts() {
             <div className="flex justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : !items || items.length === 0 ? (
+          ) : !processedItems || processedItems.length === 0 ? (
             <div className="text-center py-16 sm:py-20 px-6 bg-card rounded-3xl border border-border shadow-sm max-w-2xl mx-auto">
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Mic className="h-8 w-8 text-primary" />
@@ -37,22 +53,34 @@ export default function Podcasts() {
             </div>
           ) : (
             <div className="space-y-6 sm:space-y-8">
-              {items.map((p) => (
+              {processedItems.map((p) => (
                 <article
                   key={p.id}
                   className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300 group"
                   data-testid={`card-podcast-${p.id}`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-0">
-                    {p.image && (
-                      <div className="overflow-hidden bg-muted relative min-h-[200px] md:min-h-full">
+                    <div className="overflow-hidden bg-muted relative min-h-[200px] md:min-h-full flex items-center justify-center p-4">
+                      {p.image ? (
                         <img
                           src={p.image}
                           alt={p.title}
+                          loading="lazy"
+                          decoding="async"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = '/favicon1.svg';
+                          }}
                           className="w-full h-full max-h-72 md:max-h-none object-cover transition-transform duration-500 group-hover:scale-105"
                         />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-2">
+                          <img src="/favicon1.svg" alt="Sitecore Series" className="h-12 w-12 opacity-80" />
+                          <span className="text-muted-foreground font-mono text-xs tracking-widest uppercase">Sitecore Series</span>
+                        </div>
+                      )}
+                    </div>
+
                     <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-between">
                       <div>
                         <h2
@@ -75,9 +103,10 @@ export default function Podcasts() {
                           )}
                         </div>
 
-                        <p className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed mb-6 break-words">
+                        {/* whitespace-pre-line preserves line breaks and formatting */}
+                        <div className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed mb-6 whitespace-pre-line break-words">
                           {p.description}
-                        </p>
+                        </div>
                       </div>
 
                       {p.episodeUrl && (
