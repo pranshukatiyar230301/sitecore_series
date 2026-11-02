@@ -99,6 +99,8 @@ const DEFAULT_ABOUT = {
   shareOptions: [
     { title: "Guest Contributor", desc: "Provide your content and we publish it with full credit to you. Build your presence in the Sitecore community.", tags: ["Full byline", "Author profile"] },
     { title: "Paid Submission", desc: "Prefer compensation? We pay for high-quality articles. Paid pieces become SitecoreSeries property and publish under our authorship.", tags: ["Get paid", "Quick turnaround"] },
+    { title: "Corporate & Agency Showcase", desc: "Represent your organisation by sharing technical case studies, solution architectures, or enterprise best practices. Position your company as a Sitecore expert and gain brand visibility within the global community.", tags: ["Company brand credit", "Technical case study", "Zero-fee contribution"] },
+    { title: "Open Source & Tooling Spotlight", desc: "Showcase your open-source modules, Sitecore tools, or developer utilities to the ecosystem. Help fellow developers solve real-world problems while driving adoption and awareness for your project.", tags: ["Project & repository link", "Developer utility feature", "Zero-fee contribution"] },
   ],
   shareEmail: "pranshukatiyar230301@gmail.com",
   ctaTitle: "Ready to level up your Sitecore skills?",
@@ -131,14 +133,14 @@ const DEFAULT_FOOTER = {
   exploreLinks: [
     { label: "About Us", href: "/about" },
     { label: "Contact", href: "/contact" },
-    { label: "Privacy Policy", href: "/privacy" },
-    { label: "Terms of Service", href: "/terms" },
+    { label: "Privacy Policy", href: "/privacy-policy" },
+    { label: "Terms of Service", href: "/terms-of-service" },
   ],
   topicLinks: [
     { label: "Content Hub", href: "/blogs/sitecore-content-hub" },
     { label: "Sitecore SXA", href: "/blogs/sitecore-sxa" },
     { label: "JSS / Headless Architecture", href: "/blogs/sitecore-jss" },
-    { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-xp" },
+    { label: "XM / XP Cloud", href: "/blogs/sitecore-xm-cloud" },
   ],
 };
 
