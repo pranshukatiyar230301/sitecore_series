@@ -5,22 +5,6 @@ import type { Podcast } from "@shared/schema";
 export default function Podcasts() {
   const { data: items, isLoading } = useQuery<Podcast[]>({ queryKey: ["/api/podcasts"] });
 
-  const now = new Date();
-  const fiveDaysInMs = 5 * 24 * 60 * 60 * 1000;
-
-  // Filter out episodes older than 5 days and sort by nearest/latest episode date first
-  const processedItems = items
-    ?.filter((p) => {
-      if (!p.episodeDate) return true;
-      const episodeTime = new Date(p.episodeDate).getTime();
-      return isNaN(episodeTime) || episodeTime >= now.getTime() - fiveDaysInMs;
-    })
-    ?.sort((a, b) => {
-      const dateA = a.episodeDate ? new Date(a.episodeDate).getTime() : 0;
-      const dateB = b.episodeDate ? new Date(b.episodeDate).getTime() : 0;
-      return dateB - dateA; // Latest/newest first
-    });
-
   return (
     <div className="min-h-screen pt-6 sm:pt-12 pb-16 sm:pb-24">
       {/* Header Banner */}
@@ -41,7 +25,7 @@ export default function Podcasts() {
             <div className="flex justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : !processedItems || processedItems.length === 0 ? (
+          ) : !items || items.length === 0 ? (
             <div className="text-center py-16 sm:py-20 px-6 bg-card rounded-3xl border border-border shadow-sm max-w-2xl mx-auto">
               <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <Mic className="h-8 w-8 text-primary" />
@@ -53,14 +37,14 @@ export default function Podcasts() {
             </div>
           ) : (
             <div className="space-y-6 sm:space-y-8">
-              {processedItems.map((p) => (
+              {items.map((p) => (
                 <article
                   key={p.id}
                   className="bg-card rounded-3xl border border-border overflow-hidden shadow-sm hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-300 group"
                   data-testid={`card-podcast-${p.id}`}
                 >
                   <div className="grid grid-cols-1 md:grid-cols-[280px_1fr] gap-0">
-                    <div className="overflow-hidden bg-muted relative min-h-[200px] md:min-h-full flex items-center justify-center p-4">
+                    <div className="overflow-hidden bg-slate-900 aspect-square relative flex items-center justify-center">
                       {p.image ? (
                         <img
                           src={p.image}
@@ -70,12 +54,13 @@ export default function Podcasts() {
                           onError={(e) => {
                             e.currentTarget.onerror = null;
                             e.currentTarget.src = '/favicon1.svg';
+                            e.currentTarget.className = "w-20 h-20 object-contain p-2 opacity-90 transition-transform duration-500";
                           }}
-                          className="w-full h-full max-h-72 md:max-h-none object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                         />
                       ) : (
-                        <div className="flex flex-col items-center justify-center gap-2">
-                          <img src="/favicon1.svg" alt="Sitecore Series" className="h-12 w-12 opacity-80" />
+                        <div className="flex flex-col items-center justify-center gap-2 p-4">
+                          <img src="/favicon1.svg" alt="Sitecore Series" className="w-20 h-20 object-contain opacity-90" />
                           <span className="text-muted-foreground font-mono text-xs tracking-widest uppercase">Sitecore Series</span>
                         </div>
                       )}
@@ -103,7 +88,7 @@ export default function Podcasts() {
                           )}
                         </div>
 
-                        {/* whitespace-pre-line preserves line breaks and formatting */}
+                        {/* whitespace-pre-line preserves line breaks, bullet points, and paragraph spacing */}
                         <div className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed mb-6 whitespace-pre-line break-words">
                           {p.description}
                         </div>

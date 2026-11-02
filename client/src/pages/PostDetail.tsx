@@ -6,6 +6,18 @@ import { format } from "date-fns";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
+// Dynamic reading time calculator with a safe upper cap
+function calculateReadTime(content: string): number {
+  if (!content) return 3;
+  // Strip HTML tags to count only actual text words accurately
+  const cleanText = content.replace(/<\/?[^>]+(>|$)/g, "");
+  const words = cleanText.trim().split(/\s+/).length;
+  const wpm = 200; // Average adult reading speed
+  const minutes = Math.ceil(words / wpm);
+  // Cap between 1 min and max 20 mins so long articles don't break the UI
+  return Math.min(Math.max(1, minutes), 20);
+}
+
 export default function PostDetail() {
   const [, params] = useRoute("/posts/:slug");
   const [, paramsSingular] = useRoute("/post/:slug");
@@ -38,6 +50,7 @@ export default function PostDetail() {
     );
   }
 
+  const readTime = calculateReadTime(post.content || "");
   const shareUrl = window.location.href;
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(post.title);
@@ -112,7 +125,7 @@ export default function PostDetail() {
               </div>
               <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full backdrop-blur-xs border border-white/5">
                 <Clock className="h-4 w-4 text-primary" />
-                <span>5 min read</span>
+                <span>{readTime} min read</span>
               </div>
             </div>
           </div>
