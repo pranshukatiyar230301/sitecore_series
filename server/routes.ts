@@ -52,8 +52,8 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   // SEO: Dynamic XML Sitemap Endpoint
   app.get("/sitemap.xml", async (_req, res) => {
     try {
-      res.header("Content-Type", "application/xml");
-      res.header("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+      res.setHeader("Content-Type", "application/xml; charset=utf-8");
+      res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
 
       const smStream = new SitemapStream({ hostname: "https://sitecoreseries.com" });
 
@@ -101,10 +101,11 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
   // SEO: Dynamic Robots.txt Endpoint
   app.get("/robots.txt", (_req, res) => {
-    res.type("text/plain");
+    res.setHeader("Content-Type", "text/plain");
     res.send(`User-agent: *
 Allow: /
 Disallow: /api/admin/
+Disallow: /admin
 
 Sitemap: https://sitecoreseries.com/sitemap.xml
 `);
