@@ -17,7 +17,7 @@ import { sendContactEmail } from "./email";
 import { SitemapStream, streamToPromise } from "sitemap";
 import { Readable } from "stream";
 
-// Simple custom in-memory cache to avoid external package type declaration issues
+// Simple custom in-memory cache
 const memoryCache = new Map<string, { data: any; expiry: number }>();
 
 function getCache(key: string) {
@@ -38,13 +38,22 @@ function clearCache() {
   memoryCache.clear();
 }
 
+// Secure Token generated on startup so plaintext password is never exposed in API responses
+const activeAdminToken = randomBytes(32).toString("hex");
+
 function adminAuth(req: Request, res: Response, next: NextFunction) {
   const expected = process.env.ADMIN_PASSWORD || "";
   const provided = (req.headers["x-admin-token"] as string | undefined) || "";
   if (!expected) return res.status(500).json({ message: "Admin password not configured" });
+
   const a = Buffer.from(provided);
   const b = Buffer.from(expected);
-  if (a.length !== b.length || !timingSafeEqual(a, b)) {
+  const c = Buffer.from(activeAdminToken);
+
+  const isValid = (a.length === b.length && timingSafeEqual(a, b)) ||
+                  (a.length === c.length && timingSafeEqual(a, c));
+
+  if (!isValid) {
     return res.status(401).json({ message: "Unauthorized" });
   }
   next();
@@ -63,6 +72,14 @@ const upload = multer({
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   runSeed().catch(console.error);
 
+  // Enforce HTTPS redirection in production
+  app.use((req, res, next) => {
+    if (req.header("x-forwarded-proto") !== "https" && process.env.NODE_ENV === "production") {
+      return res.redirect(`https://${req.header("host")}${req.url}`);
+    }
+    next();
+  });
+
   // Keep-Alive Self-Ping for Render Free Tier (Pings every 10 mins to prevent sleep)
   const TEN_MINUTES = 10 * 60 * 1000;
   setInterval(() => {
@@ -74,15 +91,21 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
   function isAdminRequest(req: Request) {
     const expected = process.env.ADMIN_PASSWORD || "";
     const provided = (req.headers["x-admin-token"] as string | undefined) || "";
-    if (!expected || provided.length !== expected.length) return false;
-    try { return timingSafeEqual(Buffer.from(provided), Buffer.from(expected)); } catch { return false; }
+    if (!expected) return false;
+    
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+    const c = Buffer.from(activeAdminToken);
+
+    return (a.length === b.length && timingSafeEqual(a, b)) ||
+           (a.length === c.length && timingSafeEqual(a, c));
   }
 
   // SEO: Dynamic XML Sitemap Endpoint
   app.get("/sitemap.xml", async (_req, res) => {
     try {
       res.setHeader("Content-Type", "application/xml; charset=utf-8");
-      res.setHeader("Cache-Control", "public, max-age=86400"); // Cache for 24 hours
+      res.setHeader("Cache-Control", "public, max-age=86400");
 
       const smStream = new SitemapStream({ hostname: "https://sitecoreseries.com" });
 
@@ -98,7 +121,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
 
       staticPages.forEach((page) => smStream.write(page));
 
-      // Fetch blog posts dynamically
       const allPosts = await storage.getPosts(undefined, { includeUnpublished: false });
       allPosts.forEach((post) => {
         smStream.write({
@@ -109,7 +131,6 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         });
       });
 
-      // Fetch categories dynamically
       const categories = await storage.listCategories();
       categories.forEach((cat) => {
         smStream.write({
@@ -140,7 +161,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
 `);
   });
 
-  // Posts (Cached for high concurrency performance)
+  // Posts
   app.get(api.posts.list.path, async (req, res) => {
     const isAdmin = isAdminRequest(req);
     const cacheKey = `posts_list_${req.query.category || "all"}_${isAdmin}`;
@@ -164,17 +185,19 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json(post);
   });
 
-  // Admin: login + verify
+  // Admin: secure login (returns session token instead of plaintext password)
   app.post("/api/admin/login", (req, res) => {
     const expected = process.env.ADMIN_PASSWORD || "";
     const { password } = req.body || {};
     if (!expected) return res.status(500).json({ message: "Admin password not configured" });
     if (typeof password !== "string" || password !== expected) return res.status(401).json({ message: "Invalid password" });
-    res.json({ token: expected });
+    
+    res.json({ token: activeAdminToken });
   });
+
   app.get("/api/admin/verify", adminAuth, (_req, res) => res.json({ ok: true }));
 
-  // Admin: posts CRUD (flushes cache on modification)
+  // Admin: posts CRUD
   app.post("/api/admin/posts", adminAuth, async (req, res) => {
     try { 
       const newPost = await storage.createPost(insertPostSchema.parse(req.body));
@@ -205,7 +228,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json({ ok: true });
   });
 
-  // Admin: Cloud Image Upload via ImgBB API
+  // Admin: ImgBB upload
   app.post("/api/admin/upload", adminAuth, upload.single("file"), async (req: Request, res: Response) => {
     try {
       if (!req.file) return res.status(400).json({ message: "No file uploaded" });
@@ -232,7 +255,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     }
   });
 
-  // ----- Site content (singletons: home / about / contact / footer) -----
+  // Site content
   const ALLOWED_KEYS = new Set(["home", "about", "contact", "footer"]);
   app.get("/api/site-content/:key", async (req, res) => {
     if (!ALLOWED_KEYS.has(req.params.key)) return res.status(404).json({ message: "Unknown key" });
@@ -246,10 +269,25 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json(r);
   });
 
-  // ----- Events -----
+  // Events (Filtered: 5-day expiration & sorted by nearest start date first)
   app.get("/api/events", async (req, res) => {
-    res.json(await storage.listEvents({ includeUnpublished: isAdminRequest(req) }));
+    const isAdmin = isAdminRequest(req);
+    const allEvents = await storage.listEvents({ includeUnpublished: isAdmin });
+    
+    const now = new Date();
+    const fiveDaysInMs = 5 * 24 * 60 * 60 * 1000;
+
+    const filteredEvents = allEvents
+      .filter((event) => {
+        if (isAdmin) return true;
+        const eventTime = new Date(event.startDate).getTime();
+        return eventTime >= now.getTime() - fiveDaysInMs;
+      })
+      .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+    res.json(filteredEvents);
   });
+
   app.post("/api/admin/events", adminAuth, async (req, res) => {
     try { res.status(201).json(await storage.createEvent(insertEventSchema.parse(req.body))); }
     catch (e: any) { res.status(400).json({ message: e?.message || "Invalid input" }); }
@@ -268,7 +306,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json({ ok: true });
   });
 
-  // ----- Podcasts -----
+  // Podcasts
   app.get("/api/podcasts", async (req, res) => {
     res.json(await storage.listPodcasts({ includeUnpublished: isAdminRequest(req) }));
   });
@@ -290,7 +328,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json({ ok: true });
   });
 
-  // ----- Categories -----
+  // Categories
   app.get("/api/categories", async (_req, res) => {
     const cached = getCache("categories_list");
     if (cached) return res.json(cached);
@@ -322,7 +360,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     res.json({ ok: true });
   });
 
-  // Admin: contact submissions list
+  // Admin: contact submissions
   app.get("/api/admin/contact-submissions", adminAuth, async (_req, res) => {
     res.json(await storage.listContactSubmissions());
   });
