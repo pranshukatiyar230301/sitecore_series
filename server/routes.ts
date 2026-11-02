@@ -17,6 +17,27 @@ import { sendContactEmail } from "./email";
 import { SitemapStream, streamToPromise } from "sitemap";
 import { Readable } from "stream";
 
+// Simple custom in-memory cache to avoid external package type declaration issues
+const memoryCache = new Map<string, { data: any; expiry: number }>();
+
+function getCache(key: string) {
+  const cached = memoryCache.get(key);
+  if (!cached) return null;
+  if (Date.now() > cached.expiry) {
+    memoryCache.delete(key);
+    return null;
+  }
+  return cached.data;
+}
+
+function setCache(key: string, data: any, ttlSeconds = 60) {
+  memoryCache.set(key, { data, expiry: Date.now() + ttlSeconds * 1000 });
+}
+
+function clearCache() {
+  memoryCache.clear();
+}
+
 function adminAuth(req: Request, res: Response, next: NextFunction) {
   const expected = process.env.ADMIN_PASSWORD || "";
   const provided = (req.headers["x-admin-token"] as string | undefined) || "";
@@ -41,6 +62,14 @@ const upload = multer({
 
 export async function registerRoutes(httpServer: Server, app: Express): Promise<Server> {
   runSeed().catch(console.error);
+
+  // Keep-Alive Self-Ping for Render Free Tier (Pings every 10 mins to prevent sleep)
+  const TEN_MINUTES = 10 * 60 * 1000;
+  setInterval(() => {
+    const siteUrl = process.env.PUBLIC_SITE_URL || "https://sitecoreseries.com";
+    axios.get(`${siteUrl}/api/categories`)
+      .catch((err) => console.error("[Keep-Alive] Ping background check error:", err.message));
+  }, TEN_MINUTES);
 
   function isAdminRequest(req: Request) {
     const expected = process.env.ADMIN_PASSWORD || "";
@@ -111,14 +140,27 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
 `);
   });
 
-  // Posts
+  // Posts (Cached for high concurrency performance)
   app.get(api.posts.list.path, async (req, res) => {
-    const posts = await storage.getPosts(req.query.category as string | undefined, { includeUnpublished: isAdminRequest(req) });
+    const isAdmin = isAdminRequest(req);
+    const cacheKey = `posts_list_${req.query.category || "all"}_${isAdmin}`;
+    const cachedData = getCache(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
+    const posts = await storage.getPosts(req.query.category as string | undefined, { includeUnpublished: isAdmin });
+    setCache(cacheKey, posts, 60);
     res.json(posts);
   });
+
   app.get(api.posts.get.path, async (req, res) => {
-    const post = await storage.getPost(req.params.slug, { includeUnpublished: isAdminRequest(req) });
+    const isAdmin = isAdminRequest(req);
+    const cacheKey = `post_slug_${req.params.slug}_${isAdmin}`;
+    const cachedData = getCache(cacheKey);
+    if (cachedData) return res.json(cachedData);
+
+    const post = await storage.getPost(req.params.slug, { includeUnpublished: isAdmin });
     if (!post) return res.status(404).json({ message: "Post not found" });
+    setCache(cacheKey, post, 60);
     res.json(post);
   });
 
@@ -132,11 +174,16 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
   });
   app.get("/api/admin/verify", adminAuth, (_req, res) => res.json({ ok: true }));
 
-  // Admin: posts CRUD
+  // Admin: posts CRUD (flushes cache on modification)
   app.post("/api/admin/posts", adminAuth, async (req, res) => {
-    try { res.status(201).json(await storage.createPost(insertPostSchema.parse(req.body))); }
+    try { 
+      const newPost = await storage.createPost(insertPostSchema.parse(req.body));
+      clearCache();
+      res.status(201).json(newPost); 
+    }
     catch (e: any) { res.status(400).json({ message: e?.message || "Invalid input" }); }
   });
+
   app.patch("/api/admin/posts/:id", adminAuth, async (req, res) => {
     try {
       const id = parseInt(req.params.id, 10);
@@ -144,14 +191,17 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
       const data = insertPostSchema.partial().parse(req.body);
       const updated = await storage.updatePost(id, data);
       if (!updated) return res.status(404).json({ message: "Not found" });
+      clearCache();
       res.json(updated);
     } catch (e: any) { res.status(400).json({ message: e?.message || "Invalid input" }); }
   });
+
   app.delete("/api/admin/posts/:id", adminAuth, async (req, res) => {
     const id = parseInt(req.params.id, 10);
     if (Number.isNaN(id)) return res.status(400).json({ message: "Invalid id" });
     const ok = await storage.deletePost(id);
     if (!ok) return res.status(404).json({ message: "Not found" });
+    clearCache();
     res.json({ ok: true });
   });
 
@@ -192,6 +242,7 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
   app.put("/api/admin/site-content/:key", adminAuth, async (req, res) => {
     if (!ALLOWED_KEYS.has(req.params.key)) return res.status(400).json({ message: "Unknown key" });
     const r = await storage.setSiteContent(req.params.key, req.body);
+    clearCache();
     res.json(r);
   });
 
@@ -240,9 +291,19 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
   });
 
   // ----- Categories -----
-  app.get("/api/categories", async (_req, res) => res.json(await storage.listCategories()));
+  app.get("/api/categories", async (_req, res) => {
+    const cached = getCache("categories_list");
+    if (cached) return res.json(cached);
+    const cats = await storage.listCategories();
+    setCache("categories_list", cats, 60);
+    res.json(cats);
+  });
   app.post("/api/admin/categories", adminAuth, async (req, res) => {
-    try { res.status(201).json(await storage.createCategory(insertCategorySchema.parse(req.body))); }
+    try { 
+      const cat = await storage.createCategory(insertCategorySchema.parse(req.body));
+      clearCache();
+      res.status(201).json(cat); 
+    }
     catch (e: any) { res.status(400).json({ message: e?.message || "Invalid input" }); }
   });
   app.patch("/api/admin/categories/:id", adminAuth, async (req, res) => {
@@ -250,12 +311,14 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
       const id = parseInt(req.params.id, 10);
       const updated = await storage.updateCategory(id, insertCategorySchema.partial().parse(req.body));
       if (!updated) return res.status(404).json({ message: "Not found" });
+      clearCache();
       res.json(updated);
     } catch (e: any) { res.status(400).json({ message: e?.message || "Invalid input" }); }
   });
   app.delete("/api/admin/categories/:id", adminAuth, async (req, res) => {
     const ok = await storage.deleteCategory(parseInt(req.params.id, 10));
     if (!ok) return res.status(404).json({ message: "Not found" });
+    clearCache();
     res.json({ ok: true });
   });
 
