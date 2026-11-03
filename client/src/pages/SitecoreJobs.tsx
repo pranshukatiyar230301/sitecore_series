@@ -22,12 +22,10 @@ export default function SitecoreJobs() {
 
     return jobs
       .filter((job) => {
-        // Search filter (matches job title or company name)
         const matchesQuery = 
           job.title.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
           job.companyName.toLowerCase().includes(searchQuery.toLowerCase().trim());
 
-        // Job type filter (case-insensitive)
         const matchesType = 
           selectedJobType === "all" || 
           job.jobType.toLowerCase().replace("-", "") === selectedJobType.toLowerCase().replace("-", "");
@@ -42,55 +40,53 @@ export default function SitecoreJobs() {
   }, [jobs, searchQuery, selectedJobType, sortOrder]);
 
   return (
-    <div className="min-h-screen pb-16 sm:pb-24">
+    <div className="min-h-screen pb-16 sm:pb-24 overflow-x-hidden">
       {/* Full-Width Header Banner */}
       <div className="w-full bg-secondary text-secondary-foreground py-12 sm:py-20 mb-8 sm:mb-12 shadow-xl relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 max-w-4xl">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight break-words">
             Sitecore Career Opportunities
           </h1>
-          <p className="text-sm sm:text-lg md:text-xl text-secondary-foreground/80 leading-relaxed max-w-2xl mx-auto">
+          <p className="text-sm sm:text-lg md:text-xl text-secondary-foreground/80 leading-relaxed max-w-2xl mx-auto break-words">
             Explore the Latest Global Career Opportunities in the Sitecore Ecosystem, From Developers and Architects to Technical Leads, Managers, Directors, and Administrators. Discover Roles Across Experience Levels, Locations, and Organizations.
           </p>
         </div>
       </div>
 
-      {/* Expanded Container Width to support 4-5 items per row */}
+      {/* Expanded Container Width */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
 
-          {/* Controls Bar: Search & Filters */}
-          <div className="bg-card rounded-2xl border border-border p-4 sm:p-5 shadow-sm space-y-4">
-            {/* Search Input */}
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Find your job by title or company..."
-                className="w-full h-11 pl-10 pr-10 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+          {/* Controls Bar: Search, Type Filter & Sort in a Single Row */}
+          <div className="bg-card rounded-2xl border border-border p-3 sm:p-5 shadow-sm">
+            <div className="flex flex-row items-center gap-2 w-full">
+              {/* Search Input */}
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search title..."
+                  className="w-full h-9 sm:h-11 pl-9 pr-7 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 transition-all truncate"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
 
-            {/* Filters Row */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1 border-t border-border/60">
-              {/* Job Type Dropdown */}
-              <div className="flex items-center gap-2">
-                <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">Job Type:</span>
+              {/* Type Dropdown */}
+              <div className="flex items-center gap-1 shrink-0 bg-background border border-border rounded-xl px-2.5 h-9 sm:h-11">
+                <Filter className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 <select
                   value={selectedJobType}
                   onChange={(e) => setSelectedJobType(e.target.value)}
-                  className="h-9 px-3 rounded-lg border border-border bg-background text-xs sm:text-sm font-medium text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-primary/20"
+                  className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
                   <option value="all">All Types</option>
                   <option value="full-time">Full-Time</option>
@@ -99,17 +95,16 @@ export default function SitecoreJobs() {
                 </select>
               </div>
 
-              {/* Sorting Toggle */}
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">Sort:</span>
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-1 shrink-0 bg-background border border-border rounded-xl px-2.5 h-9 sm:h-11">
+                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 <select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
-                  className="h-9 px-3 rounded-lg border border-border bg-background text-xs sm:text-sm font-medium text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-primary/20"
+                  className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
-                  <option value="latest">Latest to Oldest</option>
-                  <option value="oldest">Oldest to Latest</option>
+                  <option value="latest">Latest</option>
+                  <option value="oldest">Oldest</option>
                 </select>
               </div>
             </div>
@@ -124,7 +119,7 @@ export default function SitecoreJobs() {
             </div>
           )}
 
-          {/* Job Listings Grid (4-5 per row on widescreen) */}
+          {/* Job Listings Grid (4 per row on widescreen) */}
           {isLoading ? (
             <div className="flex justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -141,7 +136,7 @@ export default function SitecoreJobs() {
               {(searchQuery || selectedJobType !== "all") && (
                 <button
                   onClick={() => { setSearchQuery(""); setSelectedJobType("all"); }}
-                  className="mt-4 px-4 py-2 bg-primary/10 text-primary text-xs font-semibold rounded-xl hover:bg-primary/20 transition-all cursor-pointer"
+                  className="mt-4 px-4 py-2 bg-primary/10 text-primary text-xs font-semibold rounded-xl hover:bg-primary/25 transition-all cursor-pointer"
                 >
                   Clear Filters
                 </button>
@@ -152,9 +147,9 @@ export default function SitecoreJobs() {
               {filteredJobs.map((job) => (
                 <div
                   key={job.id}
-                  className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4"
+                  className="bg-card rounded-2xl border border-border p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 break-words"
                 >
-                  <div className="space-y-2">
+                  <div className="space-y-2 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="inline-block px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-semibold uppercase tracking-wider">
                         {job.jobType}
@@ -164,11 +159,11 @@ export default function SitecoreJobs() {
                       </span>
                     </div>
 
-                    <h2 className="text-base sm:text-lg font-display font-bold text-foreground line-clamp-2">
+                    <h2 className="text-base sm:text-lg font-display font-bold text-foreground line-clamp-2 break-words">
                       {job.title}
                     </h2>
 
-                    <div className="space-y-1 text-xs text-muted-foreground pt-1">
+                    <div className="space-y-1 text-xs text-muted-foreground pt-1 min-w-0">
                       <div className="inline-flex items-center gap-1.5 font-semibold text-foreground truncate w-full">
                         <Building className="h-3.5 w-3.5 text-primary shrink-0" /> <span className="truncate">{job.companyName}</span>
                       </div>
@@ -201,51 +196,52 @@ export default function SitecoreJobs() {
         </div>
       </div>
 
-      {/* Details Popup Modal */}
+      {/* Details Popup Modal with strict non-cropping word wrapping */}
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-6 sm:p-10 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-4 sm:p-8 md:p-10 relative box-border">
             <button
               onClick={() => setSelectedJob(null)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer z-10"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="mb-6 pr-12">
+            <div className="mb-6 pr-10 min-w-0">
               <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
                 {selectedJob.jobType}
               </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3 leading-snug">
+              <h2 className="text-xl sm:text-3xl font-display font-bold text-foreground mb-3 leading-snug break-words whitespace-normal">
                 {selectedJob.title}
               </h2>
-              <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
-                  <Building className="h-4 w-4 text-primary" /> {selectedJob.companyName}
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-foreground truncate max-w-full">
+                  <Building className="h-4 w-4 text-primary shrink-0" /> <span className="truncate">{selectedJob.companyName}</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 truncate max-w-full">
+                  <MapPin className="h-4 w-4 text-primary shrink-0" /> <span className="truncate">{selectedJob.location}</span>
                 </span>
                 <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="h-4 w-4 text-primary" /> {selectedJob.location}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Calendar className="h-4 w-4 text-primary" /> Posted {format(new Date(selectedJob.createdAt), "MMM d, yyyy")}
+                  <Calendar className="h-4 w-4 text-primary shrink-0" /> Posted {format(new Date(selectedJob.createdAt), "MMM d, yyyy")}
                 </span>
               </div>
             </div>
 
-            <div className="border-t border-border pt-6 mb-8">
+            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
                 Job Description & Requirements
               </h3>
               <div 
-                className="prose prose-slate dark:prose-invert max-w-none text-base sm:text-lg leading-relaxed space-y-4"
+                className="w-full max-w-full box-border text-sm sm:text-base text-muted-foreground leading-relaxed space-y-3 break-words whitespace-pre-line"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
                 dangerouslySetInnerHTML={{ __html: selectedJob.description }}
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-border">
               <button
                 onClick={() => setSelectedJob(null)}
-                className="px-5 py-2.5 bg-muted hover:bg-muted/80 text-foreground text-sm font-medium rounded-xl transition-all cursor-pointer"
+                className="px-5 py-2.5 bg-muted hover:bg-muted/80 text-foreground text-sm font-medium rounded-xl transition-all cursor-pointer order-2 sm:order-1"
               >
                 Close
               </button>
@@ -253,7 +249,7 @@ export default function SitecoreJobs() {
                 href={selectedJob.applyUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+                className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20 order-1 sm:order-2"
               >
                 Apply for this position <ExternalLink className="h-4 w-4" />
               </a>
