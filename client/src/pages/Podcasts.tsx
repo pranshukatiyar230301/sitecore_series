@@ -6,10 +6,10 @@ export default function Podcasts() {
   const { data: items, isLoading } = useQuery<Podcast[]>({ queryKey: ["/api/podcasts"] });
 
   return (
-    <div className="min-h-screen pt-6 sm:pt-12 pb-16 sm:pb-24">
-      {/* Header Banner */}
-      <div className="bg-secondary text-secondary-foreground py-12 sm:py-20 mb-10 sm:mb-16 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-xl relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+    <div className="min-h-screen pb-16 sm:pb-24">
+      {/* Full-Width Header Banner */}
+      <div className="w-full bg-secondary text-secondary-foreground py-12 sm:py-20 mb-10 sm:mb-16 shadow-xl relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight break-words">
             Podcasts & Insights
           </h1>
@@ -88,7 +88,6 @@ export default function Podcasts() {
                           )}
                         </div>
 
-                        {/* whitespace-pre-line preserves line breaks, bullet points, and paragraph spacing */}
                         <div className="text-xs sm:text-sm md:text-base text-muted-foreground leading-relaxed mb-6 whitespace-pre-line break-words">
                           {p.description}
                         </div>

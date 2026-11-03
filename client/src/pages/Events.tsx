@@ -6,10 +6,10 @@ export default function Events() {
   const { data: events, isLoading } = useQuery<Event[]>({ queryKey: ["/api/events"] });
 
   return (
-    <div className="min-h-screen pt-6 sm:pt-12 pb-16 sm:pb-24">
-      {/* Header Banner */}
-      <div className="bg-secondary text-secondary-foreground py-12 sm:py-20 mb-10 sm:mb-16 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-xl relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+    <div className="min-h-screen pb-16 sm:pb-24">
+      {/* Full-Width Header Banner */}
+      <div className="w-full bg-secondary text-secondary-foreground py-12 sm:py-20 mb-10 sm:mb-16 shadow-xl relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight break-words">
             Events
           </h1>
@@ -77,7 +77,6 @@ export default function Events() {
                         )}
                       </div>
 
-                      {/* Added whitespace-pre-line to preserve your line breaks and bullet spacing */}
                       <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed break-words mb-4 whitespace-pre-line">
                         {e.description}
                       </p>
