@@ -24,7 +24,7 @@ export default function Podcasts() {
   });
 
   return (
-    <div className="min-h-screen pb-16 sm:pb-24">
+    <div className="min-h-screen pb-16 sm:pb-24 overflow-x-hidden">
       {/* Full-Width Header Banner */}
       <div className="w-full bg-secondary text-secondary-foreground py-12 sm:py-20 mb-8 sm:mb-12 shadow-xl relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 max-w-4xl">
@@ -41,38 +41,39 @@ export default function Podcasts() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-6">
 
-          {/* Controls Bar: Search & Sorting */}
-          <div className="bg-card rounded-2xl border border-border p-4 sm:p-5 shadow-sm space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search episodes by title or host..."
-                className="w-full h-11 pl-10 pr-10 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
+          {/* Controls Bar: Search & Sort in a Single Row */}
+          <div className="bg-card rounded-2xl border border-border p-3 sm:p-5 shadow-sm">
+            <div className="flex flex-row items-center gap-2 w-full">
+              {/* Search Input */}
+              <div className="relative flex-1 min-w-0">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search episodes..."
+                  className="w-full h-9 sm:h-11 pl-9 pr-7 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/25 transition-all truncate"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-1 border-t border-border/60">
-              <div className="flex items-center gap-2">
-                <ArrowUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
-                <span className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">Sort:</span>
+              {/* Sort Dropdown */}
+              <div className="flex items-center gap-1 shrink-0 bg-background border border-border rounded-xl px-2.5 h-9 sm:h-11">
+                <ArrowUpDown className="h-3.5 w-3.5 text-muted-foreground hidden sm:block" />
                 <select
                   value={sortOrder}
                   onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
-                  className="h-9 px-3 rounded-lg border border-border bg-background text-xs sm:text-sm font-medium text-foreground outline-none cursor-pointer focus:ring-2 focus:ring-primary/20"
+                  className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
-                  <option value="latest">Latest to Oldest</option>
-                  <option value="oldest">Oldest to Latest</option>
+                  <option value="latest">Latest</option>
+                  <option value="oldest">Oldest</option>
                 </select>
               </div>
             </div>
@@ -107,7 +108,7 @@ export default function Podcasts() {
               {filteredPodcasts.map((p) => (
                 <div
                   key={p.id}
-                  className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 group"
+                  className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 group break-words"
                   data-testid={`card-podcast-${p.id}`}
                 >
                   <div>
@@ -142,7 +143,7 @@ export default function Podcasts() {
                       </div>
 
                       <h2
-                        className="text-base sm:text-lg font-display font-bold mb-2 text-foreground tracking-tight line-clamp-2 group-hover:text-primary transition-colors"
+                        className="text-base sm:text-lg font-display font-bold mb-2 text-foreground tracking-tight line-clamp-2 group-hover:text-primary transition-colors break-words"
                         data-testid={`text-podcast-title-${p.id}`}
                       >
                         {p.title}
@@ -192,33 +193,33 @@ export default function Podcasts() {
         </div>
       </div>
 
-      {/* Details Popup Modal */}
+      {/* Details Popup Modal with strict non-cropping word wrapping */}
       {selectedPodcast && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-6 sm:p-10 relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-4 sm:p-8 md:p-10 relative box-border">
             <button
               onClick={() => setSelectedPodcast(null)}
-              className="absolute top-5 right-5 p-2 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer"
+              className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer z-10"
             >
               <X className="h-5 w-5" />
             </button>
 
-            <div className="mb-6 pr-12">
+            <div className="mb-6 pr-10 min-w-0">
               <span className="inline-block px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-wider mb-3">
                 Podcast Episode
               </span>
-              <h2 className="text-2xl sm:text-3xl font-display font-bold text-foreground mb-3 leading-snug">
+              <h2 className="text-xl sm:text-3xl font-display font-bold text-foreground mb-3 leading-snug break-words whitespace-normal">
                 {selectedPodcast.title}
               </h2>
-              <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
                 {selectedPodcast.host && (
-                  <span className="inline-flex items-center gap-1.5 font-semibold text-foreground">
-                    <User className="h-4 w-4 text-primary" /> {selectedPodcast.host}
+                  <span className="inline-flex items-center gap-1.5 font-semibold text-foreground truncate max-w-full">
+                    <User className="h-4 w-4 text-primary shrink-0" /> <span className="truncate">{selectedPodcast.host}</span>
                   </span>
                 )}
                 {selectedPodcast.episodeDate && (
                   <span className="inline-flex items-center gap-1.5">
-                    <Calendar className="h-4 w-4 text-primary" /> {selectedPodcast.episodeDate}
+                    <Calendar className="h-4 w-4 text-primary shrink-0" /> {selectedPodcast.episodeDate}
                   </span>
                 )}
               </div>
@@ -230,21 +231,22 @@ export default function Podcasts() {
               </div>
             )}
 
-            <div className="border-t border-border pt-6 mb-8">
+            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden">
               <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
                 Episode Overview & Show Notes
               </h3>
               <div 
-                className="prose prose-slate dark:prose-invert max-w-none text-base sm:text-lg leading-relaxed space-y-4 whitespace-pre-line"
+                className="w-full max-w-full box-border text-sm sm:text-base text-muted-foreground leading-relaxed space-y-3 break-words whitespace-pre-line"
+                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
               >
                 {selectedPodcast.description}
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-4 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-border">
               <button
                 onClick={() => setSelectedPodcast(null)}
-                className="px-5 py-2.5 bg-muted hover:bg-muted/80 text-foreground text-sm font-medium rounded-xl transition-all cursor-pointer"
+                className="px-5 py-2.5 bg-muted hover:bg-muted/80 text-foreground text-sm font-medium rounded-xl transition-all cursor-pointer order-2 sm:order-1"
               >
                 Close
               </button>
@@ -253,7 +255,7 @@ export default function Podcasts() {
                   href={selectedPodcast.episodeUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20"
+                  className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-primary/90 transition-all shadow-md shadow-primary/20 order-1 sm:order-2"
                 >
                   <Play className="h-4 w-4 fill-current shrink-0" /> Listen / Watch Episode
                 </a>
