@@ -42,15 +42,16 @@ export default function SitecoreJobs() {
   }, [jobs, searchQuery, selectedJobType, sortOrder]);
 
   return (
-    <div className="min-h-screen pt-6 sm:pt-12 pb-16 sm:pb-24">
-      {/* Header Banner */}
-      <div className="bg-secondary text-secondary-foreground py-12 sm:py-20 mb-8 sm:mb-12 rounded-3xl mx-4 sm:mx-6 lg:mx-8 shadow-xl relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+    <div className="min-h-screen pb-16 sm:pb-24">
+      {/* Full-Width Header Banner */}
+      <div className="w-full bg-secondary text-secondary-foreground py-12 sm:py-20 mb-8 sm:mb-12 shadow-xl relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 max-w-4xl">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight">
             Sitecore Career Opportunities
           </h1>
           <p className="text-sm sm:text-lg md:text-xl text-secondary-foreground/80 leading-relaxed max-w-2xl mx-auto">
-Explore the Latest Global Career Opportunities in the Sitecore Ecosystem, From Developers and Architects to Technical Leads, Managers, Directors, and Administrators. Discover Roles Across Experience Levels, Locations, and Organizations.          </p>
+            Explore the Latest Global Career Opportunities in the Sitecore Ecosystem, From Developers and Architects to Technical Leads, Managers, Directors, and Administrators. Discover Roles Across Experience Levels, Locations, and Organizations.
+          </p>
         </div>
       </div>
 
