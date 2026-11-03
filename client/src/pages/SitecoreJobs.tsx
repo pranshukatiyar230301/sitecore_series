@@ -196,7 +196,7 @@ export default function SitecoreJobs() {
         </div>
       </div>
 
-      {/* Details Popup Modal with strict non-cropping word wrapping */}
+      {/* Details Popup Modal with structured sections */}
       {selectedJob && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-4 sm:p-8 md:p-10 relative box-border">
@@ -227,15 +227,66 @@ export default function SitecoreJobs() {
               </div>
             </div>
 
-            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-4">
-                Job Description & Requirements
-              </h3>
-              <div 
-                className="w-full max-w-full box-border text-sm sm:text-base text-muted-foreground leading-relaxed space-y-3 break-words whitespace-pre-line"
-                style={{ wordBreak: 'break-word', overflowWrap: 'break-word' }}
-                dangerouslySetInnerHTML={{ __html: selectedJob.description }}
-              />
+            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden space-y-6">
+              
+              {/* Key Result Responsibilities */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
+                  Key Result Responsibilities
+                </h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
+                  <li>Delivers software products and components for ISA provides technology expertise and contributes to technology stack, design, development, deployment and automated testing.</li>
+                  <li>In collaboration with product team, project managers, and IT solutions managers, assists in translating business needs into technical implementations in line with the architectural principles laid down for ISA products.</li>
+                  <li>Assists in testing and implementation of technical solutions reviews technical documentation, user guides, training manuals, and system specifications ensuring quality, compliance, and completeness.</li>
+                  <li>Assists in reviewing giving feedback on specifications and information of the architectural design provided by product team.</li>
+                  <li>Co identifies the technical tools and languages needed for the design execution in line with the adopted technical and quality standards.</li>
+                  <li>Ensures the User Interfaces used for the product are in line with requirements and rightly implemented.</li>
+                </ul>
+              </div>
+
+              {/* Key Result Responsibilities-Continued */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
+                  Key Result Responsibilities - Continued
+                </h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
+                  <li>Assists in identifying and implementing best practices, new trends, and emerging technologies that bring best value to ISA clients partners with cross functional teams to explore ways and means to adopt such technologies.</li>
+                  <li>Assists in Implementing agreed remedies and preventative measures in compliance with the architecture.</li>
+                  <li>Assists ISA teams to meet agreed service levels provides needed status reports to specialists, users, and managers as requested.</li>
+                  <li>Acts proactively to ensure continuous knowledge sharing within ISA to empower other team members.</li>
+                  <li>Maintains effective working relationships with a variety of stakeholders, including project managers, product, operations, governance and enterprise development teams.</li>
+                  <li>Participates and influences thinking and decision making with respect to technology to the best of ISA.</li>
+                  <li>Performs any other additional responsibilities as directed by the line manager.</li>
+                </ul>
+              </div>
+
+              {/* Qualifications */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
+                  Qualifications (Academic, Training, Languages)
+                </h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
+                  <li>Bachelor's degree in IT Engineering, Computer Science, Information Technology or equivalent.</li>
+                  <li>Fluent in English Language.</li>
+                </ul>
+              </div>
+
+              {/* Work Experience */}
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
+                  Work Experience
+                </h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
+                  <li>3+ years of development experience, including experience with Sitecore. Travel, airline, or e-commerce platform experience is preferred.</li>
+                  <li>Strong proficiency in .NET, C#, and ASP.NET MVC development.</li>
+                  <li>Hands-on experience with Sitecore, including SXA, templates, renderings, and content modelling.</li>
+                  <li>Experience working with SQL databases and Git-based version control workflows.</li>
+                  <li>Knowledge of Headless Sitecore architecture, including Sitecore JavaScript Services (JSS).</li>
+                  <li>Sitecore certification is preferred.</li>
+                  <li>Experience with Microsoft Azure cloud services and development environments.</li>
+                </ul>
+              </div>
+
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-border">
