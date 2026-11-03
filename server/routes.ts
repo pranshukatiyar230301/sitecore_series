@@ -6,7 +6,7 @@ import { api } from "@shared/routes";
 import {
   insertPostSchema, insertContactSchema,
   insertNewsletterSubscriberSchema,
-  insertEventSchema, insertPodcastSchema, insertCategorySchema,
+  insertEventSchema, insertPodcastSchema, insertCategorySchema, insertJobSchema,
 } from "@shared/schema";
 import { z } from "zod";
 import { timingSafeEqual, randomBytes } from "crypto";
@@ -115,6 +115,7 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
         { url: "/contact", changefreq: "monthly", priority: 0.7 },
         { url: "/podcasts", changefreq: "weekly", priority: 0.8 },
         { url: "/events", changefreq: "weekly", priority: 0.8 },
+        { url: "/jobs", changefreq: "daily", priority: 0.9 },
         { url: "/privacy-policy", changefreq: "yearly", priority: 0.3 },
         { url: "/terms-of-service", changefreq: "yearly", priority: 0.3 },
       ];
@@ -137,6 +138,16 @@ export async function registerRoutes(httpServer: Server, app: Express): Promise<
           url: `/blogs/${cat.slug}`,
           changefreq: "weekly",
           priority: 0.8,
+        });
+      });
+
+      const jobs = await storage.listJobs();
+      jobs.forEach((job) => {
+        smStream.write({
+          url: `/jobs`,
+          changefreq: "daily",
+          priority: 0.9,
+          lastmod: job.createdAt ? new Date(job.createdAt).toISOString() : undefined,
         });
       });
 
@@ -326,6 +337,73 @@ Sitemap: https://sitecoreseries.com/sitemap.xml
     const ok = await storage.deletePodcast(parseInt(req.params.id, 10));
     if (!ok) return res.status(404).json({ message: "Not found" });
     res.json({ ok: true });
+  });
+
+  // Jobs
+  app.get("/api/jobs", async (_req, res) => {
+    try {
+      const jobs = await storage.listJobs();
+      res.json(jobs);
+    } catch (e: any) {
+      res.status(500).json({ message: e?.message || "Failed to fetch jobs" });
+    }
+  });
+
+  app.post("/api/admin/jobs", adminAuth, async (req, res) => {
+    try {
+      const parsed = insertJobSchema.parse(req.body);
+      const job = await storage.createJob(parsed);
+      res.status(201).json(job);
+    } catch (e: any) {
+      if (e.errors) {
+        return res.status(400).json({ message: e.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') });
+      }
+      res.status(400).json({ message: e?.message || "Invalid job input" });
+    }
+  });
+
+  // Added PUT support for editing jobs
+  app.put("/api/admin/jobs/:id", adminAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) return res.status(400).json({ message: "Invalid id" });
+      const parsed = insertJobSchema.parse(req.body);
+      const updated = await storage.updateJob(id, parsed);
+      if (!updated) return res.status(404).json({ message: "Job not found" });
+      res.json(updated);
+    } catch (e: any) {
+      if (e.errors) {
+        return res.status(400).json({ message: e.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') });
+      }
+      res.status(400).json({ message: e?.message || "Invalid job input" });
+    }
+  });
+
+  app.patch("/api/admin/jobs/:id", adminAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) return res.status(400).json({ message: "Invalid id" });
+      const updated = await storage.updateJob(id, insertJobSchema.partial().parse(req.body));
+      if (!updated) return res.status(404).json({ message: "Job not found" });
+      res.json(updated);
+    } catch (e: any) {
+      if (e.errors) {
+        return res.status(400).json({ message: e.errors.map((err: any) => `${err.path.join('.')}: ${err.message}`).join(', ') });
+      }
+      res.status(400).json({ message: e?.message || "Invalid job input" });
+    }
+  });
+
+  app.delete("/api/admin/jobs/:id", adminAuth, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id, 10);
+      if (Number.isNaN(id)) return res.status(400).json({ message: "Invalid id" });
+      const ok = await storage.deleteJob(id);
+      if (!ok) return res.status(404).json({ message: "Job not found" });
+      res.json({ ok: true });
+    } catch (e: any) {
+      res.status(500).json({ message: e?.message || "Failed to delete job" });
+    }
   });
 
   // Categories

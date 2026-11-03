@@ -69,6 +69,17 @@ export const categories = pgTable("categories", {
   description: text("description"),
 });
 
+export const jobs = pgTable("jobs", {
+  id: serial("id").primaryKey(),
+  companyName: text("company_name").notNull(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  jobType: text("job_type").notNull(),
+  location: text("location").notNull(),
+  applyUrl: text("apply_url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const insertPostSchema = createInsertSchema(posts).omit({ id: true, createdAt: true });
 export const insertContactSchema = createInsertSchema(contactSubmissions).omit({ id: true, createdAt: true }).extend({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -79,6 +90,17 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
 export const insertEventSchema = createInsertSchema(events).omit({ id: true, createdAt: true });
 export const insertPodcastSchema = createInsertSchema(podcasts).omit({ id: true, createdAt: true });
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true });
+
+// Explicitly configured insert schema to allow unlimited length rich text & valid apply URL
+export const insertJobSchema = createInsertSchema(jobs, {
+  companyName: z.string().min(1, "Company name is required"),
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  jobType: z.string().min(1, "Job type is required"),
+  location: z.string().min(1, "Location is required"),
+  applyUrl: z.string().url("Must be a valid URL starting with http:// or https://"),
+}).omit({ id: true, createdAt: true });
+
 export const upsertSiteContentSchema = z.object({ key: z.string().min(1), data: z.any() });
 
 export type Post = typeof posts.$inferSelect;
@@ -93,4 +115,6 @@ export type Podcast = typeof podcasts.$inferSelect;
 export type InsertPodcast = z.infer<typeof insertPodcastSchema>;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;
+export type Job = typeof jobs.$inferSelect;
+export type InsertJob = z.infer<typeof insertJobSchema>;
 export type SiteContent = typeof siteContent.$inferSelect;
