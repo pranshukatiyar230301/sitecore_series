@@ -91,17 +91,80 @@ export default function Contact() {
               <h2 className="text-2xl font-display font-bold mb-8">Send a Message</h2>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                  <FormField control={form.control} name="name" render={({ field }) => (
-                    <FormItem><FormLabel>Name</FormLabel><FormControl><Input placeholder="John Doe" className="rounded-xl h-12" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="email" render={({ field }) => (
-                    <FormItem><FormLabel>Email</FormLabel><FormControl><Input type="email" placeholder="john@example.com" className="rounded-xl h-12" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <FormField control={form.control} name="message" render={({ field }) => (
-                    <FormItem><FormLabel>Message</FormLabel><FormControl><Textarea placeholder="Tell us what's on your mind..." className="min-h-[160px] rounded-xl resize-none p-4" {...field} /></FormControl><FormMessage /></FormItem>
-                  )} />
-                  <Button type="submit" disabled={mutation.isPending} className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all bg-primary hover:bg-primary/90 text-white">
-                    {mutation.isPending ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</> : <>Send Message <Send className="ml-2 h-4 w-4" /></>}
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Name <span className="text-red-500 ml-0.5">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            required
+                            placeholder="John Doe"
+                            className="rounded-xl h-12 placeholder:text-slate-300 dark:placeholder:text-slate-700 placeholder:font-light"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Email <span className="text-red-500 ml-0.5">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            required
+                            type="email"
+                            placeholder="john@example.com"
+                            className="rounded-xl h-12 placeholder:text-slate-300 dark:placeholder:text-slate-700 placeholder:font-light"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="message"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Message <span className="text-red-500 ml-0.5">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            required
+                            placeholder="Tell us what's on your mind..."
+                            className="min-h-[160px] rounded-xl resize-none p-4 placeholder:text-slate-300 dark:placeholder:text-slate-700 placeholder:font-light"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={mutation.isPending}
+                    className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all bg-primary hover:bg-primary/90 text-white"
+                  >
+                    {mutation.isPending ? (
+                      <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</>
+                    ) : (
+                      <>Send Message <Send className="ml-2 h-4 w-4" /></>
+                    )}
                   </Button>
                 </form>
               </Form>
