@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useState, useMemo } from "react";
-import { Menu, X, ChevronDown, Flame, Briefcase } from "lucide-react";
+import { Menu, X, ChevronDown, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/lib/categories";
@@ -40,7 +40,7 @@ export function Navbar() {
     <Link href={href}>
       <div
         className={cn(
-          "text-sm font-medium transition-all duration-200 cursor-pointer px-3.5 py-1.5 rounded-md",
+          "text-sm font-medium transition-all duration-200 cursor-pointer px-3 py-1.5 rounded-md",
           active ? "text-red-500 bg-red-500/10 font-semibold" : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
         )}
       >
@@ -65,10 +65,10 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1.5">
+          <div className="hidden lg:flex items-center gap-1">
             <NavLink href="/" active={isActive("/")}>Home</NavLink>
 
-            {/* Dropdown Menu */}
+            {/* Dropdown Menu for Blogs & Articles */}
             <div 
               className="relative"
               onMouseEnter={() => setDropdownOpen(true)}
@@ -76,7 +76,7 @@ export function Navbar() {
             >
               <div
                 className={cn(
-                  "flex items-center gap-1.5 text-sm font-medium transition-all duration-200 cursor-pointer px-3.5 py-1.5 rounded-md outline-none",
+                  "flex items-center gap-1 text-sm font-medium transition-all duration-200 cursor-pointer px-3 py-1.5 rounded-md outline-none",
                   isBlogActive ? "text-red-500 bg-red-500/10 font-semibold" : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
                 )}
               >
@@ -120,49 +120,52 @@ export function Navbar() {
             <NavLink href="/podcasts" active={location.startsWith("/podcasts")}>Podcasts</NavLink>
             <NavLink href="/events" active={location.startsWith("/events")}>Events</NavLink>
             <NavLink href="/jobs" active={location.startsWith("/jobs")}>Jobs</NavLink>
-            <NavLink href="/contact" active={isActive("/contact")}>Contact</NavLink>
-            <NavLink href="/about" active={isActive("/about")}>About</NavLink>
+            <NavLink href="/contact" active={isActive("/contact")}>Contact Us</NavLink>
+            <NavLink href="/about" active={isActive("/about")}>About Us</NavLink>
 
-            <div className="ml-3 pl-3 border-l border-zinc-800 h-6 flex items-center">
-              <Button size="sm" onClick={openNewsletter} className="rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium px-4 shadow-md shadow-red-600/20 transition-all">
+            <div className="ml-2 pl-2 border-l border-zinc-800 h-6 flex items-center">
+              <Button size="sm" onClick={openNewsletter} className="rounded-xl bg-red-600 hover:bg-red-500 text-white font-medium px-4 shadow-md shadow-red-600/20 transition-all cursor-pointer">
                 <Flame className="h-4 w-4 mr-1.5 text-white" />
                 Subscribe
               </Button>
             </div>
           </div>
 
-          <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-zinc-300 hover:bg-zinc-800">
+          <div className="lg:hidden">
+            <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="text-zinc-300 hover:bg-zinc-800 cursor-pointer">
               {mobileMenuOpen ? <X className="h-6 w-6 text-red-500" /> : <Menu className="h-6 w-6" />}
             </Button>
           </div>
         </div>
       </div>
 
+      {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-zinc-800 bg-[#09090b] animate-in slide-in-from-top-2 duration-200">
+        <div className="lg:hidden border-t border-zinc-800 bg-[#09090b] animate-in slide-in-from-top-2 duration-200">
           <div className="space-y-1 p-4">
-            <Link href="/" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Home</div></Link>
-            <Link href="/about" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">About Us</div></Link>
-            <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Podcasts & Insights</div></Link>
-            <Link href="/events" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Events</div></Link>
-            <Link href="/jobs" onClick={() => setMobileMenuOpen(false)}><div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer"><Briefcase className="h-4 w-4 text-red-500" /> Jobs</div></Link>
             
-            {/* Mobile Dropdown - stays collapsed until clicked */}
+            {/* 1. Home */}
+            <Link href="/" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                Home
+              </div>
+            </Link>
+
+            {/* 2. Blogs & Articles */}
             <div className="px-3 py-2">
               <div 
                 onClick={() => setMobileBlogsOpen(!mobileBlogsOpen)}
-                className="flex items-center justify-between text-xs font-bold text-red-500 uppercase tracking-wider cursor-pointer hover:text-red-400 py-1"
+                className="flex items-center justify-between text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer py-1.5 px-2"
               >
-                <span>Blogs & Articles</span>
-                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200", mobileBlogsOpen && "rotate-180")} />
+                <span className="text-red-500 font-semibold uppercase tracking-wider text-xs">Blogs & Articles</span>
+                <ChevronDown className={cn("h-4 w-4 transition-transform duration-200 text-red-500", mobileBlogsOpen && "rotate-180")} />
               </div>
 
               {mobileBlogsOpen && (
                 <div className="mt-2 ml-2 space-y-1 border-l-2 border-zinc-800 pl-3 max-h-60 overflow-y-auto animate-in fade-in duration-150">
                   {(categories || []).map((cat) => (
                     <Link key={cat.slug} href={`/blogs/${cat.slug}`} onClick={() => setMobileMenuOpen(false)}>
-                      <div className="block py-1.5 text-sm font-medium text-zinc-400 hover:text-red-400 cursor-pointer">{cat.name}</div>
+                      <div className="block py-1.5 text-xs font-medium text-zinc-400 hover:text-red-400 cursor-pointer">{cat.name}</div>
                     </Link>
                   ))}
                   {(!categories || categories.length === 0) && (
@@ -172,7 +175,40 @@ export function Navbar() {
               )}
             </div>
 
-            <Link href="/contact" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Contact Us</div></Link>
+            {/* 3. Podcasts */}
+            <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                Podcasts
+              </div>
+            </Link>
+
+            {/* 4. Events */}
+            <Link href="/events" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                Events
+              </div>
+            </Link>
+
+            {/* 5. Jobs (Icon removed) */}
+            <Link href="/jobs" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                Jobs
+              </div>
+            </Link>
+
+            {/* 6. Contact Us */}
+            <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                Contact Us
+              </div>
+            </Link>
+
+            {/* 7. About Us */}
+            <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
+              <div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">
+                About Us
+              </div>
+            </Link>
             
             <button type="button" onClick={openNewsletter} className="flex items-center justify-center gap-2 w-full mt-3 px-3 py-2.5 text-center text-sm font-medium text-white bg-red-600 hover:bg-red-500 rounded-xl shadow-md shadow-red-600/20 cursor-pointer">
               <Flame className="h-4 w-4" />
