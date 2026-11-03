@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { useState, useMemo } from "react";
-import { Menu, X, ChevronDown, Flame } from "lucide-react";
+import { Menu, X, ChevronDown, Flame, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useCategories } from "@/lib/categories";
@@ -119,6 +119,7 @@ export function Navbar() {
 
             <NavLink href="/podcasts" active={location.startsWith("/podcasts")}>Podcasts</NavLink>
             <NavLink href="/events" active={location.startsWith("/events")}>Events</NavLink>
+            <NavLink href="/jobs" active={location.startsWith("/jobs")}>Jobs</NavLink>
             <NavLink href="/contact" active={isActive("/contact")}>Contact</NavLink>
             <NavLink href="/about" active={isActive("/about")}>About</NavLink>
 
@@ -145,6 +146,7 @@ export function Navbar() {
             <Link href="/about" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">About Us</div></Link>
             <Link href="/podcasts" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Podcasts & Insights</div></Link>
             <Link href="/events" onClick={() => setMobileMenuOpen(false)}><div className="block px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer">Events</div></Link>
+            <Link href="/jobs" onClick={() => setMobileMenuOpen(false)}><div className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800 rounded-lg cursor-pointer"><Briefcase className="h-4 w-4 text-red-500" /> Jobs</div></Link>
             
             {/* Mobile Dropdown - stays collapsed until clicked */}
             <div className="px-3 py-2">

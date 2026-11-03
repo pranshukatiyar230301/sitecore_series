@@ -7,9 +7,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import {
   Loader2, Plus, Pencil, Trash2, LogOut, ShieldCheck, X, Filter, Send,
-  EyeOff, CheckCircle2, FileEdit, FileText, Tag, Calendar, Mic, Home as HomeIcon, Info, Mail, Inbox, LayoutTemplate,
+  EyeOff, CheckCircle2, FileEdit, FileText, Tag, Calendar, Mic, Home as HomeIcon, Info, Mail, Inbox, LayoutTemplate, Briefcase, ArrowLeft,
 } from "lucide-react";
-import type { Post, InsertPost, Category } from "@shared/schema";
+import type { Post, InsertPost, Category, Job, InsertJob } from "@shared/schema";
 import { api } from "@shared/routes";
 import { useCategories, slugify } from "@/lib/categories";
 import { RichTextEditor } from "@/components/RichTextEditor";
@@ -18,13 +18,14 @@ import { FooterEditor } from "@/components/admin/FooterEditor";
 import { EventsManager, PodcastsManager, CategoriesManager, ContactSubmissionsViewer } from "@/components/admin/ListManagers";
 import { Field, ImageField } from "@/components/admin/AdminShared";
 
-type SectionId = "posts" | "categories" | "events" | "podcasts" | "home" | "about" | "contact" | "footer" | "submissions";
+type SectionId = "posts" | "categories" | "events" | "podcasts" | "jobs" | "home" | "about" | "contact" | "footer" | "submissions";
 
 const SECTIONS: { id: SectionId; label: string; icon: any }[] = [
   { id: "posts", label: "Blogs & Articles", icon: FileText },
   { id: "categories", label: "Categories", icon: Tag },
   { id: "events", label: "Events", icon: Calendar },
   { id: "podcasts", label: "Podcasts & Insights", icon: Mic },
+  { id: "jobs", label: "Sitecore Jobs", icon: Briefcase },
   { id: "home", label: "Home page content", icon: HomeIcon },
   { id: "about", label: "About Us content", icon: Info },
   { id: "contact", label: "Contact Us content", icon: Mail },
@@ -99,6 +100,7 @@ export default function AdminDashboard() {
             {section === "categories" && <CategoriesManager />}
             {section === "events" && <EventsManager />}
             {section === "podcasts" && <PodcastsManager />}
+            {section === "jobs" && <JobsManager />}
             {section === "home" && <HomeEditor />}
             {section === "about" && <AboutEditor />}
             {section === "contact" && <ContactEditor />}
@@ -106,6 +108,299 @@ export default function AdminDashboard() {
             {section === "submissions" && <ContactSubmissionsViewer />}
           </main>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ============== JOBS MANAGER ==============
+function JobsManager() {
+  const { toast } = useToast();
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [selectedJobType, setSelectedJobType] = useState<string>("all");
+  
+  const [formData, setFormData] = useState<InsertJob>({
+    companyName: "",
+    title: "",
+    description: "",
+    jobType: "Full-Time",
+    location: "Remote",
+    applyUrl: "",
+  });
+
+  const { data: jobs, isLoading } = useQuery<Job[]>({ queryKey: ["/api/jobs"] });
+  const token = localStorage.getItem("ss_admin_token") || "";
+
+  const availableJobTypes = useMemo(() => {
+    if (!jobs) return [];
+    const types = new Set(jobs.map(j => j.jobType));
+    return Array.from(types);
+  }, [jobs]);
+
+  const filteredJobs = useMemo(() => {
+    if (!jobs) return [];
+    if (selectedJobType === "all") return jobs;
+    return jobs.filter(j => j.jobType === selectedJobType);
+  }, [jobs, selectedJobType]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (data: InsertJob) => {
+      const url = editingId ? `/api/admin/jobs/${editingId}` : "/api/admin/jobs";
+      const method = editingId ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json", "x-admin-token": token },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to save job");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/jobs"] });
+      toast({ title: editingId ? "Job Updated Successfully" : "Job Published Successfully" });
+      closeFormAndReset();
+    },
+    onError: (error: any) => {
+      toast({ title: "Error saving job", description: error?.message, variant: "destructive" });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/jobs/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-token": token },
+      });
+      if (!res.ok) throw new Error("Failed to delete job");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/jobs"] });
+      toast({ title: "Job Deleted" });
+    },
+    onError: () => {
+      toast({ title: "Error deleting job", variant: "destructive" });
+    },
+  });
+
+  function closeFormAndReset() {
+    setIsFormOpen(false);
+    setEditingId(null);
+    setFormData({ companyName: "", title: "", description: "", jobType: "Full-Time", location: "Remote", applyUrl: "" });
+  }
+
+  function handleOpenCreateForm() {
+    setEditingId(null);
+    setFormData({ companyName: "", title: "", description: "", jobType: "Full-Time", location: "Remote", applyUrl: "" });
+    setIsFormOpen(true);
+  }
+
+  function handleOpenEditForm(job: Job) {
+    setEditingId(job.id);
+    setFormData({
+      companyName: job.companyName,
+      title: job.title,
+      description: job.description,
+      jobType: job.jobType,
+      location: job.location,
+      applyUrl: job.applyUrl,
+    });
+    setIsFormOpen(true);
+  }
+
+  // View 1: Active Listings Overview with Blog-style Filter Bar[cite: 2]
+  if (!isFormOpen) {
+    return (
+      <div className="space-y-6">
+        <div className="bg-card p-4 sm:p-5 rounded-2xl border border-border shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Filter className="h-4 w-4 text-muted-foreground shrink-0" />
+            <span className="text-xs sm:text-sm font-medium text-muted-foreground whitespace-nowrap">Filter by type:</span>
+            <select
+              value={selectedJobType}
+              onChange={(e) => setSelectedJobType(e.target.value)}
+              className="h-10 px-3 py-1.5 rounded-xl border border-border bg-background text-xs sm:text-sm font-medium outline-none cursor-pointer focus:ring-2 focus:ring-primary/20"
+            >
+              <option value="all">All types ({jobs?.length || 0})</option>
+              {availableJobTypes.map((type) => (
+                <option key={type} value={type}>
+                  {type} ({jobs?.filter(j => j.jobType === type).length || 0})
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <Button 
+            onClick={handleOpenCreateForm} 
+            className="rounded-full bg-primary hover:bg-primary/90 text-white shadow-sm text-xs sm:text-sm font-bold px-5 py-2.5 w-full sm:w-auto"
+            data-testid="button-create-job"
+          >
+            <Plus className="h-4 w-4 mr-1.5" /> New Job
+          </Button>
+        </div>
+
+        <div className="bg-card p-6 sm:p-8 rounded-3xl border border-border shadow-sm">
+          <h3 className="text-lg font-bold mb-4 font-display">Manage Active Listings</h3>
+          {isLoading ? (
+            <div className="flex justify-center py-12"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+          ) : !filteredJobs || filteredJobs.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <Briefcase className="h-6 w-6 text-primary" />
+              </div>
+              <p className="text-muted-foreground text-sm mb-4">No job listings found.</p>
+              <Button onClick={handleOpenCreateForm} variant="outline" className="rounded-xl text-xs">
+                <Plus className="h-3.5 w-3.5 mr-1" /> Post New Job
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {filteredJobs.map((j) => (
+                <div key={j.id} className="flex items-center justify-between p-4 rounded-2xl border border-border bg-background hover:border-border/80 transition-all">
+                  <div className="space-y-1">
+                    <span className="inline-block px-2 py-0.5 rounded-md bg-primary/10 text-primary text-[10px] font-bold uppercase tracking-wider">
+                      {j.jobType}
+                    </span>
+                    <h4 className="font-bold text-sm sm:text-base text-foreground">{j.title}</h4>
+                    <p className="text-xs text-muted-foreground">{j.companyName} • {j.location}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => handleOpenEditForm(j)} 
+                      className="rounded-xl"
+                      title="Edit job"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      onClick={() => { if (confirm(`Delete job "${j.title}"?`)) deleteMutation.mutate(j.id); }} 
+                      className="text-destructive hover:bg-destructive/10 rounded-xl"
+                      title="Delete job"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // View 2: Form Editor View
+  return (
+    <div className="space-y-6">
+      <button
+        type="button"
+        onClick={closeFormAndReset}
+        className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-all cursor-pointer mb-2"
+      >
+        <ArrowLeft className="h-4 w-4" /> Back to Active Listings
+      </button>
+
+      <div className="bg-card p-6 sm:p-8 rounded-3xl border border-border shadow-sm">
+        <h2 className="text-xl sm:text-2xl font-bold mb-6 font-display">
+          {editingId ? `Edit Job Opening (#${editingId})` : "Post New Sitecore Job"}
+        </h2>
+        <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(formData); }} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Company Name</label>
+              <input
+                type="text"
+                required
+                value={formData.companyName}
+                onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
+                className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm"
+                placeholder="e.g. Sitecore / Tech Partners"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Job Title</label>
+              <input
+                type="text"
+                required
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm"
+                placeholder="e.g. Senior Sitecore XM Cloud Architect"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Job Type</label>
+              <input
+                type="text"
+                required
+                value={formData.jobType}
+                onChange={(e) => setFormData({ ...formData, jobType: e.target.value })}
+                className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm"
+                placeholder="Full-Time / Contract"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Location</label>
+              <input
+                type="text"
+                required
+                value={formData.location}
+                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm"
+                placeholder="Remote / London, UK"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase mb-1">Apply URL</label>
+              <input
+                type="url"
+                required
+                value={formData.applyUrl}
+                onChange={(e) => setFormData({ ...formData, applyUrl: e.target.value })}
+                className="w-full h-11 px-3 rounded-xl border border-border bg-background text-sm"
+                placeholder="https://company.com/careers/apply"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold uppercase mb-1">Job Description (Rich Text)</label>
+            <RichTextEditor
+              value={formData.description}
+              onChange={(val) => setFormData({ ...formData, description: val })}
+              placeholder="Enter role requirements, responsibilities, and details..."
+              minHeight={250}
+            />
+          </div>
+
+          <div className="flex gap-3 pt-4 border-t border-border mt-6">
+            <button
+              type="submit"
+              disabled={saveMutation.isPending}
+              className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl text-sm shadow-md hover:bg-primary/90 transition-all cursor-pointer inline-flex items-center"
+            >
+              {saveMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              {editingId ? "Update Job" : "Publish Job"}
+            </button>
+            <button
+              type="button"
+              onClick={closeFormAndReset}
+              className="px-6 py-2.5 bg-muted text-foreground font-medium rounded-xl text-sm hover:bg-muted/80 transition-all cursor-pointer"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

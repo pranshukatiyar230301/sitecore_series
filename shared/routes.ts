@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { insertContactSchema, insertNewsletterSubscriberSchema, insertPostSchema, posts, contactSubmissions, newsletterSubscribers } from './schema';
+import { insertContactSchema, insertNewsletterSubscriberSchema, insertPostSchema, posts, contactSubmissions, newsletterSubscribers, jobs, insertJobSchema } from './schema';
 
 export const api = {
   posts: {
@@ -19,6 +19,45 @@ export const api = {
       responses: {
         200: z.custom<typeof posts.$inferSelect>(),
         404: z.object({ message: z.string() }),
+      },
+    },
+  },
+  jobs: {
+    list: {
+      method: 'GET' as const,
+      path: '/api/jobs',
+      responses: {
+        200: z.array(z.custom<typeof jobs.$inferSelect>()),
+      },
+    },
+    create: {
+      method: 'POST' as const,
+      path: '/api/admin/jobs',
+      input: insertJobSchema,
+      responses: {
+        201: z.custom<typeof jobs.$inferSelect>(),
+        400: z.object({ message: z.string() }),
+        401: z.object({ message: z.string() }),
+      },
+    },
+    update: {
+      method: 'PATCH' as const,
+      path: '/api/admin/jobs/:id',
+      input: insertJobSchema.partial(),
+      responses: {
+        200: z.custom<typeof jobs.$inferSelect>(),
+        400: z.object({ message: z.string() }),
+        404: z.object({ message: z.string() }),
+        401: z.object({ message: z.string() }),
+      },
+    },
+    delete: {
+      method: 'DELETE' as const,
+      path: '/api/admin/jobs/:id',
+      responses: {
+        200: z.object({ ok: z.boolean() }),
+        404: z.object({ message: z.string() }),
+        401: z.object({ message: z.string() }),
       },
     },
   },

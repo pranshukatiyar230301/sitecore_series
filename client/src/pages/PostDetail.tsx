@@ -42,7 +42,7 @@ export default function PostDetail() {
           The article you are looking for does not exist or has been moved.
         </p>
         <Link href="/">
-          <button className="px-6 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-all font-medium text-sm shadow-md shadow-primary/20 hover:scale-105">
+          <button className="px-6 py-3 bg-primary text-white rounded-full hover:bg-primary/90 transition-all font-medium text-sm shadow-md shadow-primary/20 hover:scale-105 cursor-pointer">
             Return Home
           </button>
         </Link>
@@ -51,7 +51,7 @@ export default function PostDetail() {
   }
 
   const readTime = calculateReadTime(post.content || "");
-  const shareUrl = window.location.href;
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(post.title);
 
@@ -94,7 +94,7 @@ export default function PostDetail() {
         <div className="absolute -top-24 -left-24 w-80 h-80 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="max-w-5xl mx-auto text-center">
             <p className="text-[10px] sm:text-xs font-bold uppercase tracking-[0.22em] text-secondary-foreground/60 mb-4">
               SitecoreSeries / Article
             </p>
@@ -132,9 +132,10 @@ export default function PostDetail() {
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* Main Content Area - Expanded to max-w-6xl for wider desktop layout */}
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-5xl mx-auto -mt-12 sm:-mt-16 md:-mt-20 relative z-20">
+        <div className="max-w-6xl mx-auto -mt-12 sm:-mt-16 md:-mt-20 relative z-20">
+          
           {/* Cover Image Container */}
           {post.coverImage && (
             <motion.div 
@@ -167,7 +168,7 @@ export default function PostDetail() {
                     title="Share on X" 
                     aria-label="Share on X" 
                     onClick={() => openShareWindow(`https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`)} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <Twitter className="h-4 w-4" />
                   </button>
@@ -176,7 +177,7 @@ export default function PostDetail() {
                     title="Share on LinkedIn" 
                     aria-label="Share on LinkedIn" 
                     onClick={() => openShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`)} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-blue-500 hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-blue-500 hover:text-blue-500 hover:bg-blue-500/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <Linkedin className="h-4 w-4" />
                   </button>
@@ -185,7 +186,7 @@ export default function PostDetail() {
                     title="Share on Facebook" 
                     aria-label="Share on Facebook" 
                     onClick={() => openShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`)} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-blue-600 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-blue-600 hover:text-blue-600 hover:bg-blue-600/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <Facebook className="h-4 w-4" />
                   </button>
@@ -194,7 +195,7 @@ export default function PostDetail() {
                     title="Share on WhatsApp" 
                     aria-label="Share on WhatsApp" 
                     onClick={() => openShareWindow(`https://wa.me/?text=${encodeURIComponent(`${post.title}\n${shareUrl}`)}`)} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-emerald-500 hover:text-emerald-500 hover:bg-emerald-500/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <FaWhatsapp className="h-4 w-4" />
                   </button>
@@ -203,7 +204,7 @@ export default function PostDetail() {
                     title="Share on Telegram" 
                     aria-label="Share on Telegram" 
                     onClick={() => openShareWindow(`https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`)} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-sky-500 hover:text-sky-500 hover:bg-sky-500/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-sky-500 hover:text-sky-500 hover:bg-sky-500/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <FaTelegramPlane className="h-4 w-4" />
                   </button>
@@ -212,7 +213,7 @@ export default function PostDetail() {
                     title="Copy article link" 
                     aria-label="Copy article link" 
                     onClick={copyArticleLink} 
-                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/10 transition-all duration-200 hover:scale-105"
+                    className="h-10 w-10 rounded-full border border-border/80 flex items-center justify-center text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/10 transition-all duration-200 hover:scale-105 cursor-pointer"
                   >
                     <LinkIcon className="h-4 w-4" />
                   </button>
@@ -224,16 +225,16 @@ export default function PostDetail() {
             <div className="flex-1 min-w-0">
               <div className="rounded-2xl sm:rounded-3xl border border-border bg-card p-6 sm:p-8 md:p-12 shadow-sm">
                 
-                {/* Summary displayed big, bold, with primary red underline */}
+                {/* Summary */}
                 {post.summary && (
                   <div className="mb-8 border-l-4 border-primary pl-4 py-1">
-                    <p className="text-xl sm:text-2xl font-display font-bold text-foreground leading-relaxed underline decoration-primary decoration-2 underline-offset-4">
+                    <p className="text-xl sm:text-2xl font-display font-bold text-foreground leading-relaxed break-words">
                       {post.summary}
                     </p>
                   </div>
                 )}
 
-                <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:underline prose-img:rounded-2xl prose-pre:shadow-lg prose-pre:bg-secondary">
+                <div className="prose prose-slate dark:prose-invert prose-lg max-w-none prose-headings:font-display prose-headings:font-bold prose-headings:tracking-tight prose-p:leading-relaxed prose-a:text-primary hover:prose-a:underline prose-img:rounded-2xl prose-pre:shadow-lg prose-pre:bg-secondary break-words">
                   <div dangerouslySetInnerHTML={{ __html: post.content }} />
                 </div>
 
