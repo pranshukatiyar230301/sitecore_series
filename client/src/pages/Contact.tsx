@@ -35,11 +35,12 @@ export default function Contact() {
   }
 
   return (
-    <div className="min-h-screen pt-12 pb-24">
-      <div className="bg-secondary text-secondary-foreground py-20 mb-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-5xl font-display font-bold mb-6 text-white">{contact.heroTitle}</h1>
-          <p className="text-xl text-secondary-foreground/80 leading-relaxed max-w-2xl mx-auto">{contact.heroSubtitle}</p>
+    <div className="min-h-screen pb-24">
+      {/* Full-Width Header Banner */}
+      <div className="w-full bg-secondary text-secondary-foreground py-16 sm:py-20 mb-16 shadow-xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-display font-bold mb-4 sm:mb-6 text-white tracking-tight">{contact.heroTitle}</h1>
+          <p className="text-base sm:text-lg md:text-xl text-secondary-foreground/80 leading-relaxed max-w-2xl mx-auto">{contact.heroSubtitle}</p>
         </div>
       </div>
 
@@ -158,7 +159,7 @@ export default function Contact() {
                   <Button
                     type="submit"
                     disabled={mutation.isPending}
-                    className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all bg-primary hover:bg-primary/90 text-white"
+                    className="w-full h-12 rounded-xl text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all bg-primary hover:bg-primary/90 text-white cursor-pointer"
                   >
                     {mutation.isPending ? (
                       <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Sending...</>
