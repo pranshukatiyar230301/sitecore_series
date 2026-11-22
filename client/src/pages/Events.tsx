@@ -72,8 +72,8 @@ export default function Events() {
                   onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
                   className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
-                  <option value="latest">Latest</option>
-                  <option value="oldest">Oldest</option>
+                  <option value="latest">Latest Events</option>
+                  <option value="oldest">Oldest Events</option>
                 </select>
               </div>
             </div>
