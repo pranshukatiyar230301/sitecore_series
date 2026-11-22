@@ -1,11 +1,231 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { 
-  Loader2, Briefcase, MapPin, Building, ExternalLink, Calendar, X, 
-  Search, ArrowUpDown, Filter 
+import {
+  Loader2, Briefcase, MapPin, Building, ExternalLink, Calendar, X,
+  Search, ArrowUpDown, Filter
 } from "lucide-react";
 import { format } from "date-fns";
 import type { Job } from "@shared/schema";
+
+interface ParsedSection {
+  heading: string | null;
+  items: string[];
+  paragraphs: string[];
+}
+
+const KNOWN_HEADINGS = [
+  "about the job",
+  "about the role",
+  "about the company",
+  "job overview",
+  "overview",
+  "role overview",
+  "summary",
+  "job summary",
+  "job details",
+  "key result responsibilities",
+  "key result responsibilities - continued",
+  "key result responsibilities-continued",
+  "key responsibilities",
+  "responsibilities",
+  "duties and responsibilities",
+  "what you will do",
+  "what you'll do",
+  "qualifications",
+  "qualifications (academic, training, languages)",
+  "required qualifications",
+  "requirements",
+  "job requirements",
+  "work experience",
+  "experience",
+  "required skills",
+  "skills",
+  "technical skills",
+  "nice to have",
+  "preferred qualifications",
+  "benefits",
+  "what we offer",
+];
+
+function isKeyValueMetadata(line: string): boolean {
+  return /^[A-Za-z][A-Za-z\s/()-]{0,30}\s*:\s*\S+/.test(line.trim());
+}
+
+function isLikelyHeading(line: string): boolean {
+  const trimmed = line.trim();
+  if (!trimmed || isKeyValueMetadata(trimmed)) return false;
+
+  const cleaned = trimmed.replace(/^[-•*▪▸►–—]+\s*/, "").replace(/:\s*$/, "").trim();
+  if (!cleaned || cleaned.length > 85) return false;
+
+  const lower = cleaned.toLowerCase();
+  if (KNOWN_HEADINGS.includes(lower) || KNOWN_HEADINGS.some((h) => lower.startsWith(`${h} (`))) {
+    return true;
+  }
+
+  const startsWithBullet = /^[-•*▪▸►–—•·]\s+/.test(trimmed);
+  const endsWithSentencePunct = /[.!?;,]$/.test(cleaned);
+  const wordCount = cleaned.split(/\s+/).length;
+
+  if (!startsWithBullet && !endsWithSentencePunct && wordCount >= 1 && wordCount <= 5) {
+    const words = cleaned.split(/\s+/);
+    const capitalizedCount = words.filter((w) => /^[A-Z]/.test(w)).length;
+    if (capitalizedCount / words.length >= 0.8) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function parseJobDescription(rawDescription: string): ParsedSection[] {
+  if (!rawDescription) return [];
+
+  let lines: string[] = [];
+
+  if (typeof window !== "undefined" && /<[a-z][\s\S]*>/i.test(rawDescription)) {
+    const container = document.createElement("div");
+    container.innerHTML = rawDescription;
+
+    container.querySelectorAll("h1, h2, h3, h4, h5, h6").forEach((el) => {
+      const text = (el.textContent || "").trim();
+      el.textContent = text ? `\n__HEADING__${text}\n` : "\n";
+    });
+
+    container.querySelectorAll("li").forEach((el) => {
+      const text = (el.textContent || "").trim();
+      el.textContent = text ? `\n__BULLET__${text}\n` : "\n";
+    });
+
+    container.querySelectorAll("p, div, br, tr").forEach((el) => {
+      if (el.tagName === "BR") {
+        el.replaceWith("\n");
+      } else {
+        el.append("\n");
+      }
+    });
+
+    lines = (container.textContent || "")
+      .replace(/\u00a0/g, " ")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+  } else {
+    lines = rawDescription
+      .replace(/\u00a0/g, " ")
+      .split(/\r?\n/)
+      .map((l) => l.trim())
+      .filter(Boolean);
+  }
+
+  const sections: ParsedSection[] = [];
+  let current: ParsedSection = { heading: null, items: [], paragraphs: [] };
+  let lastTarget: "item" | "paragraph" | null = null;
+
+  const pushCurrentIfValid = () => {
+    const cleanHeading = current.heading?.trim() || null;
+    const cleanItems = current.items.map((i) => i.trim()).filter(Boolean);
+    const cleanParagraphs = current.paragraphs.map((p) => p.trim()).filter(Boolean);
+
+    // Only keep a section if it actually has content (items or paragraphs)
+    if (cleanItems.length > 0 || cleanParagraphs.length > 0) {
+      sections.push({
+        heading: cleanHeading,
+        items: cleanItems,
+        paragraphs: cleanParagraphs,
+      });
+    }
+  };
+
+  for (const rawLine of lines) {
+    // 1. Explicit HTML heading
+    if (rawLine.startsWith("__HEADING__")) {
+      const headingText = rawLine.replace(/^__HEADING__/, "").replace(/:\s*$/, "").trim();
+      if (!headingText || isKeyValueMetadata(headingText)) {
+        if (headingText) {
+          current.items.push(headingText);
+          lastTarget = "item";
+        }
+        continue;
+      }
+      pushCurrentIfValid();
+      current = { heading: headingText, items: [], paragraphs: [] };
+      lastTarget = null;
+      continue;
+    }
+
+    // 2. Detected plain-text heading
+    if (isLikelyHeading(rawLine)) {
+      const headingText = rawLine.replace(/^[-•*▪▸►–—]+\s*/, "").replace(/:\s*$/, "").trim();
+      if (!headingText) continue;
+      pushCurrentIfValid();
+      current = { heading: headingText, items: [], paragraphs: [] };
+      lastTarget = null;
+      continue;
+    }
+
+    // 3. Explicit bullet point (__BULLET__ or -, *, •, 1.)
+    const explicitHtmlBullet = rawLine.startsWith("__BULLET__");
+    const textBulletMatch = rawLine.match(/^(?:[-•*▪▸►–—•·]|\d+[.)])\s+(.*)$/);
+
+    if (explicitHtmlBullet || textBulletMatch) {
+      const pointText = explicitHtmlBullet
+        ? rawLine.replace(/^__BULLET__/, "").trim()
+        : (textBulletMatch?.[1] || "").trim();
+
+      if (pointText) {
+        current.items.push(pointText);
+        lastTarget = "item";
+      }
+      continue;
+    }
+
+    // 4. Key-Value lines like "Location: Chennai" stay clean points/lines, never merged into previous text
+    if (isKeyValueMetadata(rawLine)) {
+      current.items.push(rawLine);
+      lastTarget = "item";
+      continue;
+    }
+
+    // 5. Merge wrapped continuation lines into the previous bullet or paragraph
+    const startsWithLowercase = /^[a-z(]/.test(rawLine);
+    const prevItem = current.items[current.items.length - 1];
+    const prevPara = current.paragraphs[current.paragraphs.length - 1];
+    const prevText = lastTarget === "item" ? prevItem : lastTarget === "paragraph" ? prevPara : null;
+    const prevIsKeyValue = prevText ? isKeyValueMetadata(prevText) : false;
+    const prevIncomplete = prevText ? !/[.!?]$/.test(prevText.trim()) : false;
+
+    if (prevText && !prevIsKeyValue && (startsWithLowercase || prevIncomplete)) {
+      if (lastTarget === "item" && current.items.length > 0) {
+        current.items[current.items.length - 1] = `${prevItem} ${rawLine}`;
+      } else if (lastTarget === "paragraph" && current.paragraphs.length > 0) {
+        current.paragraphs[current.paragraphs.length - 1] = `${prevPara} ${rawLine}`;
+      }
+      continue;
+    }
+
+    // 6. Start a new point or paragraph
+    const sectionKey = (current.heading || "").toLowerCase();
+    const isListSection =
+      sectionKey.includes("responsibilit") ||
+      sectionKey.includes("qualification") ||
+      sectionKey.includes("experience") ||
+      sectionKey.includes("skill") ||
+      sectionKey.includes("requirement") ||
+      sectionKey.includes("benefit");
+
+    if (isListSection) {
+      current.items.push(rawLine);
+      lastTarget = "item";
+    } else {
+      current.paragraphs.push(rawLine);
+      lastTarget = "paragraph";
+    }
+  }
+
+  pushCurrentIfValid();
+  return sections;
+}
 
 export default function SitecoreJobs() {
   const { data: jobs, isLoading } = useQuery<Job[]>({ queryKey: ["/api/jobs"] });
@@ -16,18 +236,23 @@ export default function SitecoreJobs() {
   const [selectedJobType, setSelectedJobType] = useState("all");
   const [sortOrder, setSortOrder] = useState<"latest" | "oldest">("latest");
 
+  const parsedSections = useMemo(() => {
+    if (!selectedJob?.description) return [];
+    return parseJobDescription(selectedJob.description);
+  }, [selectedJob]);
+
   // Computed filtered and sorted jobs list
   const filteredJobs = useMemo(() => {
     if (!jobs) return [];
 
     return jobs
       .filter((job) => {
-        const matchesQuery = 
+        const matchesQuery =
           job.title.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
           job.companyName.toLowerCase().includes(searchQuery.toLowerCase().trim());
 
-        const matchesType = 
-          selectedJobType === "all" || 
+        const matchesType =
+          selectedJobType === "all" ||
           job.jobType.toLowerCase().replace("-", "") === selectedJobType.toLowerCase().replace("-", "");
 
         return matchesQuery && matchesType;
@@ -103,8 +328,8 @@ export default function SitecoreJobs() {
                   onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
                   className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
-                  <option value="latest">Latest</option>
-                  <option value="oldest">Oldest</option>
+                  <option value="latest">Latest Jobs</option>
+                  <option value="oldest">Oldest Jobs</option>
                 </select>
               </div>
             </div>
@@ -196,10 +421,16 @@ export default function SitecoreJobs() {
         </div>
       </div>
 
-      {/* Details Popup Modal with structured sections */}
+      {/* Details Popup Modal - click outside backdrop to close */}
       {selectedJob && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-4 sm:p-8 md:p-10 relative box-border">
+        <div
+          onClick={() => setSelectedJob(null)}
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 cursor-pointer"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-card w-full max-w-3xl max-h-[88vh] overflow-y-auto rounded-3xl border border-border shadow-2xl p-4 sm:p-8 md:p-10 relative box-border cursor-default"
+          >
             <button
               onClick={() => setSelectedJob(null)}
               className="absolute top-4 right-4 sm:top-5 sm:right-5 p-2 rounded-full bg-muted hover:bg-muted/80 text-foreground transition-all cursor-pointer z-10"
@@ -227,66 +458,57 @@ export default function SitecoreJobs() {
               </div>
             </div>
 
-            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden space-y-6">
-              
-              {/* Key Result Responsibilities */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
-                  Key Result Responsibilities
-                </h3>
-                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
-                  <li>Delivers software products and components for ISA provides technology expertise and contributes to technology stack, design, development, deployment and automated testing.</li>
-                  <li>In collaboration with product team, project managers, and IT solutions managers, assists in translating business needs into technical implementations in line with the architectural principles laid down for ISA products.</li>
-                  <li>Assists in testing and implementation of technical solutions reviews technical documentation, user guides, training manuals, and system specifications ensuring quality, compliance, and completeness.</li>
-                  <li>Assists in reviewing giving feedback on specifications and information of the architectural design provided by product team.</li>
-                  <li>Co identifies the technical tools and languages needed for the design execution in line with the adopted technical and quality standards.</li>
-                  <li>Ensures the User Interfaces used for the product are in line with requirements and rightly implemented.</li>
-                </ul>
-              </div>
+            <div className="border-t border-border pt-6 mb-8 w-full min-w-0 overflow-x-hidden">
+              <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-5">
+                Job Description & Requirements
+              </p>
 
-              {/* Key Result Responsibilities-Continued */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
-                  Key Result Responsibilities - Continued
-                </h3>
-                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
-                  <li>Assists in identifying and implementing best practices, new trends, and emerging technologies that bring best value to ISA clients partners with cross functional teams to explore ways and means to adopt such technologies.</li>
-                  <li>Assists in Implementing agreed remedies and preventative measures in compliance with the architecture.</li>
-                  <li>Assists ISA teams to meet agreed service levels provides needed status reports to specialists, users, and managers as requested.</li>
-                  <li>Acts proactively to ensure continuous knowledge sharing within ISA to empower other team members.</li>
-                  <li>Maintains effective working relationships with a variety of stakeholders, including project managers, product, operations, governance and enterprise development teams.</li>
-                  <li>Participates and influences thinking and decision making with respect to technology to the best of ISA.</li>
-                  <li>Performs any other additional responsibilities as directed by the line manager.</li>
-                </ul>
-              </div>
+              {parsedSections.length > 0 ? (
+                <div className="space-y-6 w-full min-w-0">
+                  {parsedSections.map((section, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-2xl bg-muted/35 border border-border/70 p-4 sm:p-5 space-y-3 w-full min-w-0"
+                    >
+                      {section.heading && section.heading.trim().length > 0 && (
+                        <h3 className="text-base sm:text-lg font-display font-bold text-foreground pb-2 border-b border-border/60 flex items-center gap-2 break-words">
+                          <span className="w-1.5 h-5 rounded-full bg-primary shrink-0" />
+                          <span>{section.heading.trim()}</span>
+                        </h3>
+                      )}
 
-              {/* Qualifications */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
-                  Qualifications (Academic, Training, Languages)
-                </h3>
-                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
-                  <li>Bachelor's degree in IT Engineering, Computer Science, Information Technology or equivalent.</li>
-                  <li>Fluent in English Language.</li>
-                </ul>
-              </div>
+                      {section.paragraphs.map((para, pIdx) => (
+                        <p
+                          key={pIdx}
+                          className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed break-words"
+                          style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+                        >
+                          {para}
+                        </p>
+                      ))}
 
-              {/* Work Experience */}
-              <div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-primary mb-3">
-                  Work Experience
-                </h3>
-                <ul className="list-disc pl-5 space-y-2 text-sm sm:text-base text-muted-foreground leading-relaxed break-words">
-                  <li>3+ years of development experience, including experience with Sitecore. Travel, airline, or e-commerce platform experience is preferred.</li>
-                  <li>Strong proficiency in .NET, C#, and ASP.NET MVC development.</li>
-                  <li>Hands-on experience with Sitecore, including SXA, templates, renderings, and content modelling.</li>
-                  <li>Experience working with SQL databases and Git-based version control workflows.</li>
-                  <li>Knowledge of Headless Sitecore architecture, including Sitecore JavaScript Services (JSS).</li>
-                  <li>Sitecore certification is preferred.</li>
-                  <li>Experience with Microsoft Azure cloud services and development environments.</li>
-                </ul>
-              </div>
-
+                      {section.items.length > 0 && (
+                        <ul className="space-y-2.5 pt-1">
+                          {section.items.map((item, iIdx) => (
+                            <li
+                              key={iIdx}
+                              className="flex items-start gap-2.5 text-sm sm:text-[15px] text-foreground/90 leading-relaxed break-words"
+                              style={{ wordBreak: "break-word", overflowWrap: "break-word" }}
+                            >
+                              <span className="mt-2 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                              <span className="min-w-0 flex-1">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed">
+                  No description available for this position.
+                </p>
+              )}
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3 pt-4 border-t border-border">

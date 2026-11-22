@@ -72,8 +72,8 @@ export default function Podcasts() {
                   onChange={(e) => setSortOrder(e.target.value as "latest" | "oldest")}
                   className="bg-transparent text-[11px] sm:text-sm font-medium text-foreground outline-none cursor-pointer"
                 >
-                  <option value="latest">Latest</option>
-                  <option value="oldest">Oldest</option>
+                  <option value="latest">Latest Podcasts</option>
+                  <option value="oldest">Oldest Podcasts</option>
                 </select>
               </div>
             </div>
